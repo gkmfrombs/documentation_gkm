@@ -255,6 +255,7 @@
         <ul class="toc-sublist">
           <li><a href="#arch-data">Data Flow Summary</a></li>
           <li><a href="#arch-card">Physical Card</a></li>
+          <li><a href="#arch-provisioning">Provisioning & Top-Up</a></li>
         </ul>
       </li>
       <li><a href="#app1">2. App 1 — FizMaa Companion</a>
@@ -312,7 +313,8 @@
 
     <h2 id="overview">System Overview</h2>
     <p>FizMaa Cashless is a three-app NFC payment ecosystem for live events (festivals, college fests, expos). It
-      replaces cash with MIFARE DESFire EV2 smart cards that store AES-128 encrypted balances directly on-chip, enabling
+      replaces cash with MIFARE Ultralight and MIFARE Classic 1K smart cards that store HMAC-SHA256 signed balances
+      directly on-chip, enabling
       fully offline payments at stalls while maintaining real-time visibility for organizers.</p>
 
     <table>
@@ -335,7 +337,7 @@
           <td>FizMaa POS</td>
           <td>Booth Staff Terminal</td>
           <td>Vendor staff</td>
-          <td>React Native (Android only, Phase 1)</td>
+          <td>React Native (iOS + Android)</td>
         </tr>
         <tr>
           <td>FizMaa Admin Panel</td>
@@ -369,9 +371,9 @@
         update</li>
     </ul>
 
-    <h3 id="arch-card">Physical Card — MIFARE DESFire EV2</h3>
-    <p>The card is the source of truth for balance in offline mode. It stores the following fields in an AES-128
-      encrypted sector:</p>
+    <h3 id="arch-card">Physical Card — MIFARE Ultralight / MIFARE Classic 1K</h3>
+    <p>The card is the source of truth for balance in offline mode. It stores the following fields (protected by a
+      software HMAC-SHA256 signature):</p>
 
     <table>
       <thead>
@@ -383,9 +385,10 @@
       </thead>
       <tbody>
         <tr>
-          <td><code>encrypted_balance</code></td>
-          <td>Rupee balance, AES-128 encrypted. Only POS terminals with the secret key can read or write.</td>
-          <td>4 bytes</td>
+          <td><code>balance_primary</code> &amp; <code>balance_shadow</code></td>
+          <td>Rupee balance (primary and shadow copy for torn-write recovery). Only POS terminals with the secret
+            signing key can forge valid balances.</td>
+          <td>4 bytes each</td>
         </tr>
         <tr>
           <td><code>last_txn_nonce</code></td>
@@ -407,17 +410,52 @@
           <td>Written as "blocked" when card is reported lost. Accepted by offline terminals on next tap.</td>
           <td>1 byte</td>
         </tr>
+        <tr>
+          <td><code>hmac_signature</code></td>
+          <td>HMAC-SHA256 signature validating the data (prevents tampering).</td>
+          <td>19-32 bytes</td>
+        </tr>
       </tbody>
     </table>
 
     <blockquote>
-      <strong>Why MIFARE DESFire EV2 specifically?</strong><br>
-      Basic RFID cards only have a static UID — you cannot write a balance to them. Every stall would need internet to
-      look up the balance, destroying the offline promise. DESFire EV2 has writable AES-128 encrypted memory sectors and
-      a hardware backup mechanism: if power cuts out mid-write (phone battery dies, card yanked away mid-tap), the chip
-      automatically rolls back to the last valid balance on the next read. Torn writes cannot corrupt data — this is a
-      chip-level guarantee, not a software workaround.
+      <strong>Why not basic RFID?</strong><br>
+      Basic RFID cards only have a static UID — you cannot write a balance to them. MIFARE Ultralight and Classic 1K
+      have writable memory. Although they lack hardware AES-128 and torn-write rollback, FizMaa compensates with
+      software-layer HMAC signing and a two-field write-verify protocol (primary and shadow balances) to prevent
+      corruption and tampering.
     </blockquote>
+
+    <h3 id="arch-provisioning">Card Provisioning & Top-Up Process</h3>
+    <p>Because the system uses MIFARE Classic 1K / Ultralight + HMAC Signatures, the provisioning process at the gate is the most important security moment of the entire event. This is where the digital ticket transforms into a physical, cryptographically signed wallet.</p>
+
+    <h4>Scenario A: The Pre-Bought Ticket (Gold, Platinum, VIP)</h4>
+    <p>These attendees bought their tickets online days or weeks in advance. Their ticket package might include entry plus a pre-loaded balance (e.g., a "Gold Ticket" includes ₹2,000 to spend at the bar).</p>
+    <ol>
+      <li><strong>Verify the Online Ticket:</strong> Action taken by Gate Staff. The attendee walks up to the registration desk and shows the ticket QR code on their phone. The staff uses the <strong>FizMaa POS App</strong> (set to <em>Registration Mode</em>) to scan the QR code. The app instantly checks the FastAPI backend to ensure the ticket is valid and hasn't been used yet.</li>
+      <li><strong>The Physical Link:</strong> Connecting digital to physical. The POS App sees that this QR code is a "Gold Ticket" that comes with a ₹2,000 pre-loaded balance. The app prompts the staff member to tap a blank card. The staff picks up an unregistered MIFARE Classic 1K or Ultralight card and holds it to the back of their phone.</li>
+      <li><strong>The Cryptographic Write:</strong> Securing the offline wallet. In a fraction of a second, the POS App writes <code>Balance: ₹2,000</code> and <code>Counter: 1</code> to the card. It calculates the <strong>HMAC Signature</strong> combining the card's permanent UID, the balance, and the secret app key, and writes that signature to the card so vendors can verify it offline later.</li>
+      <li><strong>Backend Sync:</strong> Updating the cloud ledger. The POS App tells the FastAPI server: <em>"Ticket QR 9876 is now consumed. It is permanently linked to Card UID 1234, and the starting balance is ₹2,000."</em> The attendee walks into the festival and can start tapping at food stalls immediately.</li>
+    </ol>
+
+    <h4>Scenario B: The On-the-Spot Walk-In</h4>
+    <p>These attendees show up at the venue with no prior registration. They need to buy a ticket, get a card, and load it with money all at the exact same time.</p>
+    <ol>
+      <li><strong>Take Payment:</strong> Physical Cash or UPI. The attendee walks up to the Top-Up counter and says, <em>"I need entry, and I want to load ₹1,000."</em> They scan a static UPI QR code taped to the desk or hand physical cash to the staff member.</li>
+      <li><strong>Configure the Top-Up:</strong> Action taken by Gate Staff. Once the staff verifies the UPI ping or puts the cash in the drawer, they open the <strong>FizMaa POS App</strong> (set to <em>Top-Up Mode</em>) and type "₹1,000" into the keypad.</li>
+      <li><strong>The Cryptographic Write:</strong> Creating the wallet. The staff picks up a blank card and taps it to their phone. Just like the pre-bought flow, the app writes the ₹1,000 balance and generates the strict HMAC security signature to lock the data.</li>
+      <li><strong>Anonymous Profile Creation:</strong> Optional later link. The POS App pings the FastAPI backend to create a brand new, anonymous user profile in the database, linked to this specific Card UID with a server balance of ₹1,000. <em>(Optional Upgrade: If the attendee wants to check their balance later, they can download the Companion App, tap the card, and the system will link that anonymous profile to their phone number.)</em></li>
+    </ol>
+
+    <h4>⚠️ Crucial Architecture Constraint: Handling "Ticket Types"</h4>
+    <p>Because you are using <strong>MIFARE Ultralight</strong> cards, you only have <strong>48 bytes</strong> of usable space. This creates a hard limitation: <strong>You cannot store the "Ticket Type" (Gold, Platinum, VIP) directly on the physical card.</strong> The space is entirely consumed by the Rupee balance and the HMAC security signature.</p>
+    <p>If a vendor's POS terminal is completely offline, it will have no way of knowing if the card tapping it belongs to a "Platinum" attendee or a general admission attendee.</p>
+    <p><strong>How to solve this (Handle tier privileges physically or hybridly):</strong></p>
+    <ul>
+      <li><strong>Physical Visuals:</strong> The easiest operational fix is to use different colored physical cards or wristbands. Give Gold buyers a black Ultralight wristband and General Walk-ins a white one. The security guards check the color for VIP zone access, while the NFC chip strictly handles the money.</li>
+      <li><strong>Online-Only Checks:</strong> If a specific VIP bar offers "20% off for Platinum members," that specific POS terminal must have an active internet connection. When the card taps, the terminal reads the UID, quickly asks the FastAPI server <em>"What tier is this UID?"</em>, and applies the discount before writing the new balance.</li>
+    </ul>
+
 
     <h2 id="app1">2. App 1 — FizMaa Companion (Attendee App)</h2>
     <p><strong>One-line purpose:</strong> Let attendees load money, view spending history, chat with an AI assistant,
@@ -640,14 +678,14 @@
         <tr>
           <td>NFC</td>
           <td>react-native-nfc-manager</td>
-          <td>Full DESFire EV2 read/write. Reads encrypted balance, validates cryptographic signature, writes new
-            balance + nonce.</td>
+          <td>Supports Ultralight and Classic 1K read/write. Sector authentication for Classic 1K via Key A. Reads
+            balance, validates HMAC signature, writes new balance + nonce.</td>
         </tr>
         <tr>
-          <td>Encryption</td>
-          <td>react-native-aes-crypto</td>
-          <td>AES-128 encryption and decryption of the balance sector on the card. Secret key stored in Expo Secure
-            Store.</td>
+          <td>HMAC / Crypto</td>
+          <td>react-native-crypto</td>
+          <td>HMAC-SHA256 computation (via node-forge polyfill) for signature generation and verification. Secret key
+            stored in Expo Secure Store.</td>
         </tr>
         <tr>
           <td>State</td>
@@ -677,12 +715,15 @@
         </tr>
         <tr>
           <td>Platform</td>
-          <td>Android only (Phase 1–3)</td>
-          <td>iOS NFC write requires Apple NFC Tag Writer entitlement with 4–6 week Apple review. Planned for Phase 4.
+          <td>Android + iOS (Phase 1)</td>
+          <td>Native CoreNFC supports MIFARE read/write out of the box. No Apple entitlement required.
           </td>
         </tr>
       </tbody>
     </table>
+
+    <h4>Native iOS Support Unlocked</h4>
+    <p>By shifting to MIFARE Classic/Ultralight cards, the system bypasses previous iOS restrictions. Apple's CoreNFC framework fully supports reading and writing MIFARE tags out of the box via <code>NFCMiFareTag</code>. This eliminates the need for the 4-6 week Apple Entitlement review, allowing the POS App to be deployed on both Android and iOS devices concurrently from Day 1.</p>
 
     <h4>Payment Flow — Step by Step</h4>
     <ol>
@@ -691,7 +732,7 @@
       <li>Attendee views the screen showing: Current Balance, Deduction Amount, New Balance. They can walk away if the
         amount is wrong.</li>
       <li>Attendee taps their card to the phone's NFC reader.</li>
-      <li>App reads AES-128 encrypted balance from the DESFire EV2 card.</li>
+      <li>App reads balance and HMAC signature from the card.</li>
       <li>App validates cryptographic signature. Rejects forged cards immediately.</li>
       <li>App checks balance is sufficient. If not, shows Red Declined screen with reason and shortfall amount.</li>
       <li>App checks <code>last_txn_nonce</code>. Rejects double-taps within 5 seconds.</li>
@@ -1212,7 +1253,8 @@
       <li>SSL Pinning implemented via a custom OkHttp interceptor: the app's expected server certificate hash is bundled
         at build time. If a man-in-the-middle proxy (Wireshark, Charles Proxy, Burp Suite) intercepts the connection,
         the certificate hash won't match and the connection is killed before any data is transmitted.</li>
-      <li>AES-128 secret key (for encrypting/decrypting card balance sector) stored in Expo Secure Store — never in JS
+      <li>HMAC signing secret key (for computing signature over card balance sector) stored in Expo Secure Store — never
+        in JS
         bundle, never in source code, injected at EAS Build time via EAS Secrets.</li>
       <li>JWT scoped to <code>booth_staff</code> role — cannot call admin, supervisor, or attendee-exclusive endpoints.
       </li>
@@ -1239,7 +1281,8 @@
         <tr>
           <td>Torn write</td>
           <td>Phone battery dies mid-NFC-write, card data corrupted</td>
-          <td>DESFire EV2 hardware backup sector auto-rollback. Physically impossible to corrupt — chip-level guarantee.
+          <td>Two-field write-verify protocol. <code>balance_shadow</code> recovers the last valid state if
+            <code>balance_primary</code> is corrupted mid-write.
           </td>
         </tr>
         <tr>
@@ -1595,7 +1638,7 @@
           <td>ECS task environment (not sensitive)</td>
         </tr>
         <tr>
-          <td><code>NFC_AES_KEY</code></td>
+          <td><code>SECRET_SIGNING_KEY</code></td>
           <td>POS App</td>
           <td>EAS Secrets &rarr; Expo Secure Store at build time. Never in JS bundle.</td>
         </tr>
@@ -1624,7 +1667,7 @@
       <tbody>
         <tr>
           <td>Phase 1</td>
-          <td>Companion App (Android + iOS) + POS App (Android) + Backend + Admin Panel</td>
+          <td>Companion App (Android + iOS) + POS App (Android + iOS) + Backend + Admin Panel</td>
           <td>First live event. NFC payments, offline queue, card freeze via admin, basic settlement.</td>
         </tr>
         <tr>
@@ -1640,9 +1683,9 @@
         </tr>
         <tr>
           <td>Phase 4</td>
-          <td>POS App iOS (Apple NFC Tag Writer entitlement, 4–6 week review), Accountant export portal, white-label
+          <td>Accountant export portal, white-label
             support</td>
-          <td>iOS vendor devices. Enterprise clients.</td>
+          <td>Enterprise clients.</td>
         </tr>
       </tbody>
     </table>
@@ -1688,8 +1731,8 @@
     </table>
 
     <h3>Week 2: The Hardware Spike (July 8 – July 14)</h3>
-    <p><strong>Goal:</strong> The Android POS App. This is the highest technical risk of the project. If you cannot
-      securely read/write to the DESFire EV2 card offline, the ecosystem fails.</p>
+    <p><strong>Goal:</strong> The Android & iOS POS App. This is the highest technical risk of the project. If you cannot
+      securely read/write to the NFC card offline, the ecosystem fails.</p>
     <table>
       <thead>
         <tr>
@@ -1702,11 +1745,11 @@
         <tr>
           <td><strong>1. React Native Setup</strong></td>
           <td>Initialize the POS app, configure EAS Build, set up <code>expo-sqlite</code> and Zustand.</td>
-          <td>App builds successfully via EAS and runs on a physical Android device.</td>
+          <td>App builds successfully via EAS and runs on a physical device.</td>
         </tr>
         <tr>
           <td><strong>2. NFC Read/Write</strong></td>
-          <td>Integrate <code>react-native-nfc-manager</code> and <code>react-native-aes-crypto</code>.</td>
+          <td>Integrate <code>react-native-nfc-manager</code> and <code>react-native-crypto</code>.</td>
           <td>App can read the encrypted balance, write a new balance, and increment the card's nonce.</td>
         </tr>
         <tr>
@@ -1805,9 +1848,9 @@
       </thead>
       <tbody>
         <tr>
-          <td>DESFire EV2</td>
-          <td>MIFARE DESFire EV2 — a smart card chip by NXP that supports AES-128 encrypted writable memory sectors and
-            hardware backup rollback on torn writes.</td>
+          <td>MIFARE Ultralight / Classic 1K</td>
+          <td>Cost-effective NFC smart cards used by FizMaa. They use software-layer HMAC signing and a two-field
+            write-verify protocol since they lack hardware AES and torn-write rollback.</td>
         </tr>
         <tr>
           <td>EAS Build</td>
@@ -1874,7 +1917,7 @@
 
     <hr>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; font-style: italic;">FizMaa Cashless —
-      Technical Architecture v1.0 · Confidential</p>
+      Technical Architecture v3.0 · Confidential</p>
 
   </main>
 </body>
