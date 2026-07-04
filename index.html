@@ -1,328 +1,301 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FizMaa Cashless — Complete Technical Architecture</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FizMaa Cashless — Complete System Architecture v4.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #d32f2f;
-      --primary-dark: #b71c1c;
-      --primary-light: #fff5f5;
-      --text-main: #2d3748;
-      --text-muted: #718096;
-      --bg-body: #ffffff;
-      --bg-sidebar: #fbfbfb;
-      --border-color: #e2e8f0;
-      --font-main: 'Inter', sans-serif;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #18181b;
+      --muted: #52525b;
+      --line: #e4e4e7;
+      --brand: #dc2626;       /* Crimson Red */
+      --brand-dark: #991b1b;  /* Deep Red */
+      --brand-light: #fef2f2; /* Soft Red Tint */
+      --sidebar-bg: #7f1d1d;  /* Deep Burgundy */
+      --sidebar-ink: #fecdd3; /* Rose White */
+      --accent: #ef4444;
+      --danger: #b91c1c;
+      --code: #f4f4f5;
+      --shadow: 0 10px 30px rgba(153, 27, 27, 0.08);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: var(--font-main);
-      color: var(--text-main);
-      background-color: var(--bg-body);
-      line-height: 1.6;
-      font-size: 14.5px;
-      display: flex;
-      scroll-behavior: smooth;
-    }
-
-    nav.sidebar {
-      width: 280px;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      background-color: var(--bg-sidebar);
-      border-right: 1px solid var(--border-color);
-      overflow-y: auto;
-      padding: 30px 20px;
-    }
-
-    .sidebar-header {
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid var(--primary);
-    }
-
-    .sidebar-header h2 {
-      color: var(--primary-dark);
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .toc-list {
-      list-style: none;
-    }
-
-    .toc-list li {
-      margin-bottom: 6px;
-    }
-
-    .toc-list a {
-      text-decoration: none;
-      color: var(--text-main);
-      font-size: 13.5px;
-      display: block;
-      padding: 6px 10px;
-      border-radius: 6px;
-      transition: all 0.2s;
-      font-weight: 500;
-    }
-
-    .toc-list a:hover {
-      background-color: var(--primary-light);
-      color: var(--primary-dark);
-      padding-left: 14px;
-    }
-
-    .toc-sublist {
-      list-style: none;
-      padding-left: 15px;
-      margin-top: 4px;
-    }
-
-    .toc-sublist a {
-      font-size: 13px;
-      font-weight: 400;
-      color: var(--text-muted);
-    }
-
-    .toc-sublist a:hover {
-      color: var(--primary);
-    }
-
-    main.content {
-      margin-left: 280px;
-      padding: 50px 80px;
-      max-width: 950px;
-      width: 100%;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4 {
-      color: var(--primary-dark);
-      font-weight: 600;
-      margin-top: 2em;
-      margin-bottom: 0.8em;
-    }
-
-    h1 {
-      font-size: 28px;
-      border-bottom: 3px solid var(--primary);
-      padding-bottom: 10px;
-      margin-top: 0;
-    }
-
-    h2 {
-      font-size: 22px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 8px;
-      color: var(--primary);
-    }
-
-    h3 {
-      font-size: 18px;
-      color: var(--text-main);
-    }
-
-    h4 {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.65;
       font-size: 15px;
     }
-
-    p {
+    a { color: var(--brand); text-decoration: none; font-weight: 500; }
+    a:hover { text-decoration: underline; color: var(--brand-dark); }
+    
+    .layout {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 30px 20px;
+      background: var(--sidebar-bg);
+      color: #ffffff;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    aside h2 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+    aside .version-tag {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 24px;
+    }
+    nav ol {
+      margin: 0;
+      padding-left: 18px;
+    }
+    nav li {
+      margin: 10px 0;
+      color: var(--sidebar-ink);
+      font-size: 13.5px;
+    }
+    nav a { color: #ffffff; transition: opacity 0.2s; }
+    nav a:hover { opacity: 0.8; text-decoration: none; }
+    nav ul {
+      list-style: none;
+      padding-left: 12px;
+      margin: 6px 0 0;
+    }
+    nav ul li { margin: 6px 0; font-size: 12.5px; }
+    nav ul a { color: var(--sidebar-ink); }
+    
+    /* Main Content */
+    main {
+      width: min(1050px, 100%);
+      margin: 0 auto;
+      padding: 40px 60px 100px;
+    }
+    
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: var(--shadow);
+      margin-bottom: 40px;
+    }
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--brand);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: .08em;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 44px);
+      font-weight: 800;
+      color: var(--brand-dark);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      margin: 16px 0 0;
+    }
+    
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--brand-dark);
+      margin-top: 50px;
       margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--line);
+    }
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-top: 30px;
+      margin-bottom: 12px;
+    }
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--brand);
+      margin-top: 20px;
+      margin-bottom: 8px;
     }
 
-    ul,
-    ol {
-      margin-bottom: 16px;
-      padding-left: 24px;
-    }
-
-    li {
-      margin-bottom: 6px;
-    }
+    p, ul, ol { margin-bottom: 16px; }
+    ul, ol { padding-left: 24px; }
+    li { margin-bottom: 6px; }
 
     blockquote {
-      background-color: var(--primary-light);
-      border-left: 3px solid var(--primary);
-      padding: 14px 18px;
-      margin: 20px 0;
-      color: var(--primary-dark);
-      border-radius: 0 6px 6px 0;
-      font-size: 14px;
+      background: var(--brand-light);
+      border-left: 4px solid var(--brand);
+      padding: 16px 20px;
+      margin: 24px 0;
+      border-radius: 0 8px 8px 0;
+      color: var(--brand-dark);
+      font-size: 14.5px;
     }
+    blockquote strong { color: var(--brand-dark); }
 
+    /* Tables */
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 24px 0;
-      font-size: 13.5px;
-      border-radius: 6px;
+      font-size: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
-
-    th,
-    td {
-      border: 1px solid var(--border-color);
-      padding: 10px 14px;
+    th, td {
+      border: 1px solid var(--line);
+      padding: 12px 16px;
       text-align: left;
       vertical-align: top;
     }
-
     th {
-      background-color: var(--primary);
-      color: white;
-      font-weight: 500;
+      background: var(--brand-dark);
+      color: #ffffff;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.05em;
     }
+    tr:nth-child(even) { background: #fafafa; }
+    tr:hover { background: var(--brand-light); }
 
-    tr:nth-child(even) {
-      background-color: #f8fafc;
-    }
-
+    /* Code */
     code {
-      background-color: #f1f5f9;
+      background: var(--code);
+      color: var(--brand-dark);
       padding: 2px 6px;
       border-radius: 4px;
       font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
       font-size: 13px;
-      color: var(--primary-dark);
+      border: 1px solid #e4e4e7;
     }
-
     pre {
-      background-color: #f8fafc;
-      padding: 14px;
-      border-radius: 6px;
+      background: #18181b;
+      color: #f4f4f5;
+      padding: 20px;
+      border-radius: 8px;
       overflow-x: auto;
-      margin-bottom: 16px;
-      border: 1px solid var(--border-color);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 20px 0;
+      border: 1px solid #27272a;
     }
-
     pre code {
-      background-color: transparent;
+      background: transparent;
+      color: inherit;
       padding: 0;
-      color: var(--text-main);
+      border: none;
     }
 
-    .header-meta {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 40px;
-      font-style: italic;
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+      margin-bottom: 8px;
     }
-
-    hr {
-      border: 0;
-      height: 1px;
-      background: var(--border-color);
-      margin: 40px 0;
-    }
+    .badge-red { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-dark { background: #f4f4f5; color: #27272a; border: 1px solid #e4e4e7; }
 
     @media (max-width: 900px) {
-      nav.sidebar {
-        display: none;
-      }
-
-      main.content {
-        margin-left: 0;
-        padding: 30px 20px;
-      }
+      .layout { grid-template-columns: 1fr; }
+      aside { display: none; }
+      main { padding: 20px; }
     }
   </style>
 </head>
-
 <body>
 
-  <nav class="sidebar">
-    <div class="sidebar-header">
-      <h2>FizMaa Cashless</h2>
+<div class="layout">
+  <aside>
+    <h2>FizMaa Cashless</h2>
+    <div class="version-tag">Phase 1 Architecture · v4.0</div>
+    <p>Closed-loop NFC payment ecosystem with Local Edge Resilience & Identity Tokens.</p>
+    <nav>
+      <ol>
+        <li><a href="#overview">System Overview</a></li>
+        <li><a href="#arch">1. System Architecture</a>
+          <ul>
+            <li><a href="#arch-data">Data Flow & Edge Server</a></li>
+            <li><a href="#arch-card">Physical Card Specs</a></li>
+            <li><a href="#arch-provisioning">Provisioning & Top-Up</a></li>
+          </ul>
+        </li>
+        <li><a href="#app1">2. Companion App (iOS + Android)</a></li>
+        <li><a href="#app2">3. POS App (Android Only)</a></li>
+        <li><a href="#app3">4. Admin Panel (Web)</a></li>
+        <li><a href="#backend">5. Backend & Edge Server</a></li>
+        <li><a href="#security">6. Security Architecture</a></li>
+        <li><a href="#github">7. GitHub Workflow</a></li>
+        <li><a href="#cicd">8. CI/CD Pipeline</a></li>
+        <li><a href="#deployment">9. Deployment Process</a></li>
+        <li><a href="#phase">10. Phase Rollout Plan</a></li>
+        <li><a href="#timeline">11. Timeline & Milestones</a></li>
+        <li><a href="#database">12. Database Reference</a>
+          <ul>
+            <li><a href="#db-overview">Design Principles</a></li>
+            <li><a href="#db-tables">Table Reference</a></li>
+            <li><a href="#db-relations">Key Relationships</a></li>
+          </ul>
+        </li>
+        <li><a href="#glossary">Glossary</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <div class="eyebrow">Technical Specification Documentation</div>
+      <h1>FizMaa Cashless Ecosystem</h1>
+      <p class="subtitle">A high-speed, offline-resilient NFC payment system for festivals. Built on read-only Identity Tokens, Local Edge Servers, and atomic cloud ledger synchronization.</p>
+      <div style="margin-top: 20px;">
+        <span class="badge badge-red">Phase 1: Active Development</span>
+        <span class="badge badge-dark">POS: Android Only</span>
+        <span class="badge badge-dark">Companion: iOS + Android</span>
+        <span class="badge badge-dark">Hardware: NTAG216 / Ultralight EV2</span>
+      </div>
     </div>
-    <ul class="toc-list">
-      <li><a href="#overview">System Overview</a></li>
-      <li><a href="#arch">1. System Architecture</a>
-        <ul class="toc-sublist">
-          <li><a href="#arch-data">Data Flow Summary</a></li>
-          <li><a href="#arch-card">Physical Card</a></li>
-          <li><a href="#arch-provisioning">Provisioning & Top-Up</a></li>
-        </ul>
-      </li>
-      <li><a href="#app1">2. App 1 — FizMaa Companion</a>
-        <ul class="toc-sublist">
-          <li><a href="#app1-frontend">Frontend Architecture</a></li>
-          <li><a href="#app1-backend">Backend Interactions</a></li>
-        </ul>
-      </li>
-      <li><a href="#app2">3. App 2 — FizMaa POS</a>
-        <ul class="toc-sublist">
-          <li><a href="#app2-frontend">Frontend Architecture</a></li>
-          <li><a href="#app2-backend">Backend Interactions</a></li>
-        </ul>
-      </li>
-      <li><a href="#app3">4. App 3 — Admin Panel</a>
-        <ul class="toc-sublist">
-          <li><a href="#app3-frontend">Frontend Architecture</a></li>
-          <li><a href="#app3-backend">Backend Interactions</a></li>
-        </ul>
-      </li>
-      <li><a href="#backend">5. Backend Architecture</a>
-        <ul class="toc-sublist">
-          <li><a href="#backend-stack">Tech Stack</a></li>
-          <li><a href="#backend-endpoints">Core Endpoints</a></li>
-          <li><a href="#backend-idempotency">Idempotency & Reconciliation</a></li>
-        </ul>
-      </li>
-      <li><a href="#security">6. Security Architecture</a>
-        <ul class="toc-sublist">
-          <li><a href="#security-firewall">Firewall</a></li>
-          <li><a href="#security-mobile">Mobile App Security</a></li>
-          <li><a href="#security-problems">Four Security Problems</a></li>
-        </ul>
-      </li>
-      <li><a href="#github">7. GitHub Workflow</a>
-        <ul class="toc-sublist">
-          <li><a href="#github-branch">Branch Structure</a></li>
-          <li><a href="#github-pr">Pull Request Rules</a></li>
-          <li><a href="#github-repo">Monorepo Structure</a></li>
-        </ul>
-      </li>
-      <li><a href="#cicd">8. CI/CD Pipeline</a></li>
-      <li><a href="#deployment">9. Deployment Process</a></li>
-      <li><a href="#phase">10. Phase Rollout Plan</a></li>
-      <li><a href="#timeline">11. Timeline and Milestones</a></li>
-      <li><a href="#database">12. Database Documentation</a>
-        <ul class="toc-sublist">
-          <li><a href="#db-overview">Overview</a></li>
-          <li><a href="#db-tables">Table Reference</a></li>
-          <li><a href="#db-relations">Key Relationships</a></li>
-        </ul>
-      </li>
-      <li><a href="#glossary">Glossary</a></li>
-    </ul>
-  </nav>
-
-  <main class="content">
-
-    <h1>FizMaa Cashless — Complete Technical Architecture Documentation</h1>
-    <div class="header-meta">Closed-loop NFC payment ecosystem for live events · Frontend · Backend · Security · CI/CD ·
-      Deployment</div>
 
     <h2 id="overview">System Overview</h2>
-    <p>FizMaa Cashless is a three-app NFC payment ecosystem for live events (festivals, college fests, expos). It
-      replaces cash with MIFARE Ultralight and MIFARE Classic 1K smart cards that store HMAC-SHA256 signed balances
-      directly on-chip, enabling
-      fully offline payments at stalls while maintaining real-time visibility for organizers.</p>
+    <p>FizMaa Cashless replaces cash at live events (festivals, college fests, food expos) with NTAG216 and MIFARE Ultralight EV2 smart cards. To eliminate physical card corruption (write-tearing) and ensure universal iOS compatibility, Phase 1 treats the NFC chip as a <strong>read-only Cryptographic Identity Token</strong>. All financial transactions occur atomically on a <strong>Local Event Edge Server</strong> (over venue Wi-Fi) or the AWS Cloud backend.</p>
 
     <table>
       <thead>
@@ -330,1692 +303,291 @@
           <th>Component</th>
           <th>Type</th>
           <th>Primary Users</th>
-          <th>Platform</th>
+          <th>Target Platform (Phase 1)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>FizMaa Companion</td>
+          <td><strong>FizMaa Companion</strong></td>
           <td>Attendee App</td>
           <td>Event-goers</td>
           <td>React Native (iOS + Android)</td>
         </tr>
         <tr>
-          <td>FizMaa POS</td>
-          <td>Booth Staff Terminal</td>
-          <td>Vendor staff</td>
-          <td>React Native (iOS + Android)</td>
+          <td><strong>FizMaa POS</strong></td>
+          <td>Booth Terminal</td>
+          <td>Vendor Staff</td>
+          <td><strong>React Native (Android Only)</strong></td>
         </tr>
         <tr>
-          <td>FizMaa Admin Panel</td>
+          <td><strong>FizMaa Admin Panel</strong></td>
           <td>Web Dashboard</td>
-          <td>Organizer, Supervisor, Accountant</td>
-          <td>Next.js (Web)</td>
+          <td>Organizers, Supervisors, Accountants</td>
+          <td>Next.js (Modern Web Browsers)</td>
         </tr>
         <tr>
-          <td>FizMaa Backend</td>
-          <td>Shared API</td>
-          <td>All three apps</td>
-          <td>FastAPI (Python)</td>
+          <td><strong>FizMaa Backend</strong></td>
+          <td>Cloud API Ledger</td>
+          <td>All Apps & Edge Servers</td>
+          <td>FastAPI (Python / PostgreSQL)</td>
+        </tr>
+        <tr>
+          <td><strong>Local Edge Server</strong></td>
+          <td>Venue Wi-Fi Node</td>
+          <td>POS Devices (during event)</td>
+          <td>Dockerized FastAPI on Laptop / Mini-PC</td>
         </tr>
       </tbody>
     </table>
 
     <h2 id="arch">1. System Architecture</h2>
-    <p>All three apps share a single FastAPI backend. Role-based access is enforced entirely server-side via JWT claims
-      — the app separation is a UX boundary, not a security boundary.</p>
+    <p>The system decouples identity from balance. The physical NFC card holds only a permanent UID and a cryptographic token hash. The actual rupee balance resides strictly in PostgreSQL tables managed by the cloud backend or the Local Event Edge Server.</p>
 
-    <h3 id="arch-data">Data Flow Summary</h3>
+    <h3 id="arch-data">1.1 Data Flow & Local Edge Resilience</h3>
     <ul>
-      <li>Attendee taps card &rarr; NFC UID read &rarr; account linked in backend</li>
-      <li>Attendee pays via Razorpay inside Companion App &rarr; Celery job queued &rarr; Top-Up terminal writes new
-        balance physically to NFC card</li>
-      <li>Vendor enters amount &rarr; POS App reads encrypted balance from card &rarr; deducts &rarr; writes back &rarr;
-        transaction written to local SQLite queue</li>
-      <li>SQLite queue syncs to backend when connectivity restores &rarr; Celery reconciles transaction order using
-        on-card counter</li>
-      <li>Admin Panel receives live transaction events via Socket.IO &rarr; real-time revenue and alert dashboards
-        update</li>
+      <li><strong>Online Top-Up:</strong> Attendee pays via Razorpay inside the Companion App &rarr; Razorpay Webhook fires to Cloud Backend &rarr; Backend verifies HMAC signature and updates `server_balance_paise`. <em>(No physical card write required for top-ups).</em></li>
+      <li><strong>Stall Checkout (Edge Mode):</strong> POS App (Android) taps attendee card &rarr; Reads UID + Token (~10ms) &rarr; Sends HTTP POST over venue Wi-Fi to Local Edge Server &rarr; Edge Server verifies balance, atomically deducts funds, and logs transaction &rarr; POS displays visual success.</li>
+      <li><strong>Cloud Synchronization:</strong> Local Edge Server asynchronously batches completed transactions to the AWS Neon Postgres cloud database every 30 seconds via background workers.</li>
     </ul>
 
-    <h3 id="arch-card">Physical Card — MIFARE Ultralight / MIFARE Classic 1K</h3>
-    <p>The card is the source of truth for balance in offline mode. It stores the following fields (protected by a
-      software HMAC-SHA256 signature):</p>
+    <h3 id="arch-card">1.2 Physical Card Specs — NTAG216 / MIFARE Ultralight EV2</h3>
+    <p>To support native iOS reading on customer phones and prevent mid-write data corruption, we explicitly avoid MIFARE Classic 1K. Cards are pre-encoded at the factory or gate with read-only identity structures:</p>
 
     <table>
       <thead>
         <tr>
           <th>Field</th>
           <th>Purpose</th>
-          <th>Size</th>
+          <th>Storage Location</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><code>balance_primary</code> &amp; <code>balance_shadow</code></td>
-          <td>Rupee balance (primary and shadow copy for torn-write recovery). Only POS terminals with the secret
-            signing key can forge valid balances.</td>
-          <td>4 bytes each</td>
+          <td><code>card_uid</code></td>
+          <td>Permanent 7-byte hardware identifier read from the silicon chip.</td>
+          <td>Chip Header (Read-Only)</td>
         </tr>
         <tr>
-          <td><code>last_txn_nonce</code></td>
-          <td>Random value written after each payment. Rejects double-taps within 5 seconds.</td>
-          <td>8 bytes</td>
+          <td><code>card_token_hash</code></td>
+          <td>SHA-256 cryptographic token validating that the card belongs to the official FizMaa event batch.</td>
+          <td>NFC User Memory Sector</td>
         </tr>
         <tr>
-          <td><code>last_txn_timestamp</code></td>
-          <td>UTC timestamp of last transaction. Combined with nonce for double-tap window check.</td>
-          <td>8 bytes</td>
+          <td><code>card_qr_code</code></td>
+          <td>Printed QR code on the physical card surface matching the UID. Serves as an instant camera fallback if NFC chip fails.</td>
+          <td>Physical Print on Card Surface</td>
         </tr>
         <tr>
-          <td><code>txn_counter</code></td>
-          <td>Incrementing integer. Server uses this to reconstruct chronological order from out-of-sequence syncs.</td>
-          <td>4 bytes</td>
-        </tr>
-        <tr>
-          <td><code>status_flag</code></td>
-          <td>Written as "blocked" when card is reported lost. Accepted by offline terminals on next tap.</td>
-          <td>1 byte</td>
-        </tr>
-        <tr>
-          <td><code>hmac_signature</code></td>
-          <td>HMAC-SHA256 signature validating the data (prevents tampering).</td>
-          <td>19-32 bytes</td>
+          <td><code>card_public_id</code></td>
+          <td>Human-readable serial number (e.g., <code>FZ-2026-8891</code>) printed on the card for support queries.</td>
+          <td>Physical Print on Card Surface</td>
         </tr>
       </tbody>
     </table>
 
     <blockquote>
-      <strong>Why not basic RFID?</strong><br>
-      Basic RFID cards only have a static UID — you cannot write a balance to them. MIFARE Ultralight and Classic 1K
-      have writable memory. Although they lack hardware AES-128 and torn-write rollback, FizMaa compensates with
-      software-layer HMAC signing and a two-field write-verify protocol (primary and shadow balances) to prevent
-      corruption and tampering.
+      <strong>Why Read-Only Identity Tokens?</strong><br>
+      Writing data sectors to an NFC chip takes 100–300ms. In crowded festival lines, attendees frequently pull their wristbands away too quickly, causing a "torn write" that corrupts on-card balance memory. Reading a UID/Token takes only <strong>10ms</strong>. By shifting balance math to database software, we achieve 100% transaction reliability and zero card corruption.
     </blockquote>
 
-    <h3 id="arch-provisioning">Card Provisioning & Top-Up Process</h3>
-    <p>Because the system uses MIFARE Classic 1K / Ultralight + HMAC Signatures, the provisioning process at the gate is
-      the most important security moment of the entire event. This is where the digital ticket transforms into a
-      physical, cryptographically signed wallet.</p>
-
-    <h4>Scenario A: The Pre-Bought Ticket (Gold, Platinum, VIP)</h4>
-    <p>These attendees bought their tickets online days or weeks in advance. Their ticket package might include entry
-      plus a pre-loaded balance (e.g., a "Gold Ticket" includes ₹2,000 to spend at the bar).</p>
+    <h3 id="arch-provisioning">1.3 Provisioning & Top-Up Flows</h3>
+    <h4>Scenario A: Pre-Bought Ticket Linking</h4>
     <ol>
-      <li><strong>Verify the Online Ticket:</strong> Action taken by Gate Staff. The attendee walks up to the
-        registration desk and shows the ticket QR code on their phone. The staff uses the <strong>FizMaa POS
-          App</strong> (set to <em>Registration Mode</em>) to scan the QR code. The app instantly checks the FastAPI
-        backend to ensure the ticket is valid and hasn't been used yet.</li>
-      <li><strong>The Physical Link:</strong> Connecting digital to physical. The POS App sees that this QR code is a
-        "Gold Ticket" that comes with a ₹2,000 pre-loaded balance. The app prompts the staff member to tap a blank card.
-        The staff picks up an unregistered MIFARE Classic 1K or Ultralight card and holds it to the back of their phone.
-      </li>
-      <li><strong>The Cryptographic Write:</strong> Securing the offline wallet. In a fraction of a second, the POS App
-        writes <code>Balance: ₹2,000</code> and <code>Counter: 1</code> to the card. It calculates the <strong>HMAC
-          Signature</strong> combining the card's permanent UID, the balance, and the secret app key, and writes that
-        signature to the card so vendors can verify it offline later.</li>
-      <li><strong>Backend Sync:</strong> Updating the cloud ledger. The POS App tells the FastAPI server: <em>"Ticket QR
-          9876 is now consumed. It is permanently linked to Card UID 1234, and the starting balance is ₹2,000."</em> The
-        attendee walks into the festival and can start tapping at food stalls immediately.</li>
+      <li>Attendee presents digital ticket QR code at the entrance gate.</li>
+      <li>Staff scans ticket QR using **FizMaa POS (Registration Mode)**.</li>
+      <li>Staff taps a fresh NTAG216/Ultralight wristband to their Android phone.</li>
+      <li>POS App reads `card_uid` and links it to the ticket's pre-loaded balance in the backend/edge server. The attendee enters immediately.</li>
     </ol>
 
-    <h4>Scenario B: The On-the-Spot Walk-In</h4>
-    <p>These attendees show up at the venue with no prior registration. They need to buy a ticket, get a card, and load
-      it with money all at the exact same time.</p>
+    <h4>Scenario B: Gate Walk-In Cash/UPI Top-Up</h4>
     <ol>
-      <li><strong>Take Payment:</strong> Physical Cash or UPI. The attendee walks up to the Top-Up counter and says,
-        <em>"I need entry, and I want to load ₹1,000."</em> They scan a static UPI QR code taped to the desk or hand
-        physical cash to the staff member.
-      </li>
-      <li><strong>Configure the Top-Up:</strong> Action taken by Gate Staff. Once the staff verifies the UPI ping or
-        puts the cash in the drawer, they open the <strong>FizMaa POS App</strong> (set to <em>Top-Up Mode</em>) and
-        type "₹1,000" into the keypad.</li>
-      <li><strong>The Cryptographic Write:</strong> Creating the wallet. The staff picks up a blank card and taps it to
-        their phone. Just like the pre-bought flow, the app writes the ₹1,000 balance and generates the strict HMAC
-        security signature to lock the data.</li>
-      <li><strong>Anonymous Profile Creation:</strong> Optional later link. The POS App pings the FastAPI backend to
-        create a brand new, anonymous user profile in the database, linked to this specific Card UID with a server
-        balance of ₹1,000. <em>(Optional Upgrade: If the attendee wants to check their balance later, they can download
-          the Companion App, tap the card, and the system will link that anonymous profile to their phone number.)</em>
-      </li>
+      <li>Attendee pays physical cash or scans a static UPI QR at the booth.</li>
+      <li>Staff enters amount (e.g., ₹1,000) on **FizMaa POS (Top-Up Mode)** and taps a blank wristband.</li>
+      <li>POS App pings the Edge Server to create an anonymous user profile linked to `card_uid` with a starting balance of ₹1,000.</li>
+      <li><em>Optional:</em> Attendee downloads Companion App later, taps their card, and links the anonymous balance to their phone number.</li>
     </ol>
 
-    <h4>⚠️ Crucial Architecture Constraint: Handling "Ticket Types"</h4>
-    <p>Because you are using <strong>MIFARE Ultralight</strong> cards, you only have <strong>48 bytes</strong> of usable
-      space. This creates a hard limitation: <strong>You cannot store the "Ticket Type" (Gold, Platinum, VIP) directly
-        on the physical card.</strong> The space is entirely consumed by the Rupee balance and the HMAC security
-      signature.</p>
-    <p>If a vendor's POS terminal is completely offline, it will have no way of knowing if the card tapping it belongs
-      to a "Platinum" attendee or a general admission attendee.</p>
-    <p><strong>How to solve this (Handle tier privileges physically or hybridly):</strong></p>
+    <h2 id="app1">2. Companion App (iOS + Android)</h2>
+    <p><strong>Purpose:</strong> A consumer-facing mobile application allowing attendees to safely manage their funds without ever touching booth payment deduction flows.</p>
+
+    <h3>2.1 Core Capabilities (Safe Actions Only)</h3>
     <ul>
-      <li><strong>Physical Visuals:</strong> The easiest operational fix is to use different colored physical cards or
-        wristbands. Give Gold buyers a black Ultralight wristband and General Walk-ins a white one. The security guards
-        check the color for VIP zone access, while the NFC chip strictly handles the money.</li>
-      <li><strong>Online-Only Checks:</strong> If a specific VIP bar offers "20% off for Platinum members," that
-        specific POS terminal must have an active internet connection. When the card taps, the terminal reads the UID,
-        quickly asks the FastAPI server <em>"What tier is this UID?"</em>, and applies the discount before writing the
-        new balance.</li>
+      <li><strong>NFC Card Linking:</strong> Uses Apple CoreNFC (iOS) and Android NFC to perform a 10ms read-only scan of the wristband, permanently linking it to the user's account.</li>
+      <li><strong>Webhook-Verified Top-Ups:</strong> Attendees add funds via Razorpay (UPI/Cards). To prevent client-side spoofing, the app balance updates **only** after the backend receives and validates the Razorpay webhook.</li>
+      <li><strong>Live Balance & History:</strong> Fetches running balance and itemized expenditure receipts directly from the cloud backend.</li>
+      <li><strong>Instant Kill-Switch:</strong> Allows attendees to freeze a lost wristband immediately. The block flag propagates to edge servers within seconds, declining any subsequent tap attempts at stalls.</li>
     </ul>
 
+    <h2 id="app2">3. POS App (Android Only — Phase 1)</h2>
+    <p><strong>Purpose:</strong> Turn vendor Android smartphones into high-speed, offline-resilient checkout terminals. iOS is explicitly excluded in Phase 1 to guarantee low-level hardware reliability and eliminate App Store deployment barriers.</p>
 
-    <h2 id="app1">2. App 1 — FizMaa Companion (Attendee App)</h2>
-    <p><strong>One-line purpose:</strong> Let attendees load money, view spending history, chat with an AI assistant,
-      and raise disputes — all from their phone.</p>
-
-    <h3 id="app1-frontend">2.1 Frontend Architecture</h3>
-    <p>The Companion App is a consumer-grade mobile application for event-goers. Every screen has one clear purpose and
-      requires no training to operate.</p>
-
-    <h4>Tech Stack</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Layer</th>
-          <th>Tool</th>
-          <th>Reason</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Framework</td>
-          <td>React Native (Expo + EAS Build)</td>
-          <td>Single codebase for Android and iOS. EAS Build is mandatory — NFC APIs are unavailable in standard Expo
-            Go.</td>
-        </tr>
-        <tr>
-          <td>Language</td>
-          <td>TypeScript</td>
-          <td>Type safety for card data structures and financial amounts. Prevents implicit coercions on rupee values.
-          </td>
-        </tr>
-        <tr>
-          <td>Navigation</td>
-          <td>Expo Router</td>
-          <td>File-based routing. Each screen is a route, simplifying deep linking and push notification navigation.
-          </td>
-        </tr>
-        <tr>
-          <td>State Management</td>
-          <td>Zustand</td>
-          <td>Lightweight global store for balance, card UID, and transaction list. No boilerplate compared to Redux.
-          </td>
-        </tr>
-        <tr>
-          <td>Local DB</td>
-          <td>expo-sqlite</td>
-          <td>Caches transaction history for offline viewing. Attendees can review past spending without connectivity.
-          </td>
-        </tr>
-        <tr>
-          <td>NFC</td>
-          <td>react-native-nfc-manager</td>
-          <td>Reads card UID for one-time account linking. Attendees never write to the card.</td>
-        </tr>
-        <tr>
-          <td>Payments</td>
-          <td>Razorpay React Native SDK</td>
-          <td>UPI and card top-ups inside the app. Razorpay handles PCI-DSS compliance.</td>
-        </tr>
-        <tr>
-          <td>UI Components</td>
-          <td>Tamagui</td>
-          <td>Fast, consistent cross-platform UI. Compiles styles at build time.</td>
-        </tr>
-        <tr>
-          <td>Auth</td>
-          <td>JWT with refresh tokens</td>
-          <td>Role: attendee. Cannot call staff or admin endpoints at the API level.</td>
-        </tr>
-        <tr>
-          <td>Push Notifications</td>
-          <td>Expo Notifications</td>
-          <td>Payment confirmations, top-up success alerts, refund status updates.</td>
-        </tr>
-        <tr>
-          <td>AI Chatbot</td>
-          <td>Anthropic Claude API</td>
-          <td>In-app AI assistant for attendees. Answers event FAQs, helps navigate stalls, explains spending.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h4>Key Screens and Features</h4>
-    <p><strong>Card Linking (One-time)</strong></p>
-    <p>When an attendee receives their NFC card at the entrance, they open the app and tap the card to their phone. The
-      app reads the card UID using <code>react-native-nfc-manager</code> and sends it to the backend to link with their
-      account. This is a one-time step — after this, the physical card and the app account are permanently paired.</p>
-
-    <blockquote>
-      <strong>iOS Note:</strong> The Companion App only reads the card UID once (for linking). This uses Core NFC Read,
-      which Apple permits without special entitlements. The app does NOT write to cards, so no special Apple NFC
-      entitlement is required. iOS support can launch alongside Android in Phase 1.
-    </blockquote>
-
-    <p><strong>Balance Top-Up</strong></p>
-    <ul>
-      <li>Attendee selects an amount and payment method (UPI / Card / Net Banking) inside the app</li>
-      <li>Payment processed via Razorpay — FizMaa never handles raw card numbers</li>
-      <li>On Razorpay webhook confirmation, backend queues a Celery task</li>
-      <li>A Top-Up terminal writes the new balance physically to the NFC card</li>
-      <li>App reflects the new balance within 5 seconds via a server poll or Socket.IO push</li>
-    </ul>
-
-    <p><strong>Live Balance Display</strong></p>
-    <p>The home screen shows the current balance in large type. This figure is fetched from the server, not read from
-      the card (the card cannot be read unless physically tapped to the phone). The server balance and on-card balance
-      stay in sync via the transaction counter reconciliation system.</p>
-
-    <p><strong>Transaction History</strong></p>
-    <p>Every top-up, payment, and refund is listed chronologically with stall name, amount, timestamp, and running
-      balance. Cached locally in expo-sqlite for offline viewing. Attendees can raise a dispute on any specific
-      transaction, which queues a refund request for supervisor review.</p>
-
-    <p><strong>Spending Insights</strong></p>
-    <p>Simple breakdown of what was spent at which stall category (Food / Beverages / Merch). Not analytics — just
-      receipts made visual. Shows top stalls visited and a category breakdown chart.</p>
-
-    <p><strong>AI Chatbot</strong></p>
-    <p>An in-app Claude-powered assistant attendees can chat with. Handles:</p>
-    <ul>
-      <li>Event FAQs (where is the medical tent, what time does the main stage open)</li>
-      <li>Spending queries ("how much have I spent on food today?")</li>
-      <li>Balance and top-up guidance ("how do I add more money?")</li>
-      <li>Dispute assistance ("I was charged twice, what do I do?")</li>
-    </ul>
-    <p>The chatbot calls a backend proxy endpoint (<code>POST /ai/chat</code>) which adds event context (current
-      balance, recent transactions, event info) to the system prompt before forwarding to the Claude API. The attendee's
-      financial data never leaves the backend — only a contextual summary is included in the prompt.</p>
-
-    <h3 id="app1-backend">2.2 Backend Interactions (Attendee App)</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Action</th>
-          <th>Endpoint</th>
-          <th>Auth</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Register / Login</td>
-          <td><code>POST /auth/register</code>, <code>POST /auth/login</code></td>
-          <td>None</td>
-          <td>Returns JWT (role: attendee) and refresh token</td>
-        </tr>
-        <tr>
-          <td>Link NFC card</td>
-          <td><code>POST /cards/link</code></td>
-          <td>JWT attendee</td>
-          <td>Body: <code>{ card_uid }</code>. One-time. Fails if UID already linked.</td>
-        </tr>
-        <tr>
-          <td>Fetch balance</td>
-          <td><code>GET /cards/{uid}/balance</code></td>
-          <td>JWT attendee</td>
-          <td>Returns server-side balance. Cached by client, TTL 30s.</td>
-        </tr>
-        <tr>
-          <td>Initiate top-up</td>
-          <td><code>POST /topups/initiate</code></td>
-          <td>JWT attendee</td>
-          <td>Creates Razorpay order, returns <code>order_id</code> to client SDK</td>
-        </tr>
-        <tr>
-          <td>Razorpay webhook</td>
-          <td><code>POST /topups/webhook</code></td>
-          <td>HMAC signature</td>
-          <td>Razorpay calls this. Validates signature, queues Celery task.</td>
-        </tr>
-        <tr>
-          <td>Transaction history</td>
-          <td><code>GET /transactions?card={uid}</code></td>
-          <td>JWT attendee</td>
-          <td>Paginated. Returns up to 50 per page.</td>
-        </tr>
-        <tr>
-          <td>Raise refund</td>
-          <td><code>POST /refunds/request</code></td>
-          <td>JWT attendee</td>
-          <td>Body: <code>{ txn_id, reason }</code>. Creates pending refund for supervisor.</td>
-        </tr>
-        <tr>
-          <td>AI chatbot</td>
-          <td><code>POST /ai/chat</code></td>
-          <td>JWT attendee</td>
-          <td>Backend proxy. Adds event + transaction context to system prompt.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2 id="app2">3. App 2 — FizMaa POS (Booth Staff Terminal)</h2>
-    <p><strong>One-line purpose:</strong> The phone IS the POS machine. Staff enter an amount, the attendee taps their
-      card, and the payment is deducted directly from the card — with or without internet.</p>
-
-    <h3 id="app2-frontend">3.1 Frontend Architecture</h3>
-    <p>The POS App is the most technically critical app in the system. It handles all actual payment writes to the NFC
-      card.</p>
-
-    <h4>Tech Stack</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Layer</th>
-          <th>Tool</th>
-          <th>Reason</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Framework</td>
-          <td>React Native (Expo + EAS Build)</td>
-          <td>EAS Build is non-negotiable for NFC write access on Android. Standard Expo Go lacks NFC write APIs.</td>
-        </tr>
-        <tr>
-          <td>Language</td>
-          <td>TypeScript</td>
-          <td>Financial logic cannot have implicit type coercions. Strict mode enforced.</td>
-        </tr>
-        <tr>
-          <td>NFC</td>
-          <td>react-native-nfc-manager</td>
-          <td>Supports Ultralight and Classic 1K read/write. Sector authentication for Classic 1K via Key A. Reads
-            balance, validates HMAC signature, writes new balance + nonce.</td>
-        </tr>
-        <tr>
-          <td>HMAC / Crypto</td>
-          <td>react-native-crypto</td>
-          <td>HMAC-SHA256 computation (via node-forge polyfill) for signature generation and verification. Secret key
-            stored in Expo Secure Store.</td>
-        </tr>
-        <tr>
-          <td>State</td>
-          <td>Zustand</td>
-          <td>Tracks <code>isNfcLocked</code> boolean (the 3-second post-payment cooldown gate) and offline queue
-            length.</td>
-        </tr>
-        <tr>
-          <td>Local DB</td>
-          <td>expo-sqlite</td>
-          <td>Stores offline transaction queue. Persists across app restarts and device reboots.</td>
-        </tr>
-        <tr>
-          <td>Background Sync</td>
-          <td>expo-background-fetch</td>
-          <td>Attempts sync to backend when app is backgrounded and internet becomes available.</td>
-        </tr>
-        <tr>
-          <td>Navigation</td>
-          <td>Expo Router</td>
-          <td>Simple flow: Keypad &rarr; Handshake &rarr; Result &rarr; Queue.</td>
-        </tr>
-        <tr>
-          <td>Auth</td>
-          <td>JWT (role: booth_staff)</td>
-          <td>Server enforces: booth_staff tokens cannot call supervisor or admin endpoints.</td>
-        </tr>
-        <tr>
-          <td>Platform</td>
-          <td>Android + iOS (Phase 1)</td>
-          <td>Native CoreNFC supports MIFARE read/write out of the box. No Apple entitlement required.
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h4>Native iOS Support Unlocked</h4>
-    <p>By shifting to MIFARE Classic/Ultralight cards, the system bypasses previous iOS restrictions. Apple's CoreNFC
-      framework fully supports reading and writing MIFARE tags out of the box via <code>NFCMiFareTag</code>. This
-      eliminates the need for the 4-6 week Apple Entitlement review, allowing the POS App to be deployed on both Android
-      and iOS devices concurrently from Day 1.</p>
-
-    <h4>Payment Flow — Step by Step</h4>
+    <h3>3.1 The Checkout Handshake & Edge Execution</h3>
     <ol>
-      <li>Staff opens the Keypad screen. Enters rupee amount using the large tap-friendly keypad.</li>
-      <li>Staff taps "Charge". App transitions to the Visual Handshake Screen.</li>
-      <li>Attendee views the screen showing: Current Balance, Deduction Amount, New Balance. They can walk away if the
-        amount is wrong.</li>
-      <li>Attendee taps their card to the phone's NFC reader.</li>
-      <li>App reads balance and HMAC signature from the card.</li>
-      <li>App validates cryptographic signature. Rejects forged cards immediately.</li>
-      <li>App checks balance is sufficient. If not, shows Red Declined screen with reason and shortfall amount.</li>
-      <li>App checks <code>last_txn_nonce</code>. Rejects double-taps within 5 seconds.</li>
-      <li>App writes new encrypted balance + new nonce + timestamp back to card.</li>
-      <li>App locks NFC for 3 seconds (Layer 1 double-tap protection).</li>
-      <li>Transaction written to local SQLite queue immediately.</li>
-      <li>Green screen with success sound shown. Card UID, amount, and new balance displayed.</li>
-      <li>Background sync job uploads the queued transaction to the server when internet is available.</li>
+      <li>Staff enters rupee amount on the large keypad and hits "Charge".</li>
+      <li><strong>Visual Handshake Screen:</strong> App displays a full-screen confirmation showing Deduction Amount and Stall Name. Vendor cannot skip this screen, preventing silent overcharging.</li>
+      <li>Attendee taps wristband. POS reads `card_uid` + `card_token_hash` in ~10ms.</li>
+      <li>POS sends transaction payload to the **Local Event Edge Server** over venue Wi-Fi.</li>
+      <li>Edge Server validates identity, checks for duplicate nonces (5-second window), deducts balance atomically in Postgres, and returns `200 OK`.</li>
+      <li>POS screen flashes green with a success beep. If Wi-Fi drops completely, POS falls back to an encrypted local SQLite queue (`emergency_offline` mode) with strict liability limits.</li>
     </ol>
 
-    <h4>Visual Handshake Screen — Anti-Fraud Design</h4>
-    <p>This is the most important UX decision in the entire system. When staff hits "Charge", the app does NOT
-      immediately activate NFC. It first shows a full-screen confirmation with the exact balance, deduction, and
-      resulting new balance before any NFC action is taken.</p>
-    <p>The attendee physically sees this screen before they tap. The vendor cannot skip or dismiss it. This prevents
-      silent overcharging entirely — the most common fraud vector in closed-loop event payment systems.</p>
+    <h2 id="app3">4. Admin Panel (Web)</h2>
+    <p><strong>Purpose:</strong> Mission control for event organizers, supervisors, and accountants. Built with Next.js App Router and Tailwind CSS.</p>
 
-    <h4>Three-Layer Double-Tap Protection</h4>
+    <h3>4.1 Role-Gated Operational Views</h3>
+    <ul>
+      <li><strong>Live Event Dashboard:</strong> Real-time Socket.IO feed displaying gross velocity, active cards, stall revenue leaderboards, and Edge Server sync health.</li>
+      <li><strong>Velocity Anomaly Detection:</strong> Automatically freezes vendor payouts if an offline/edge sync batch shows average transaction values exceeding 3&times; their historical baseline.</li>
+      <li><strong>Supervisor Dispute Queue:</strong> Review attendee refund requests. Approved refunds instantly credit the user's cloud balance without requiring a physical card tap.</li>
+      <li><strong>Lost Card Replacement:</strong> Supervisor scans a new blank card, enters the lost card's serial number, and atomically migrates the balance while permanently revoking the old UID.</li>
+    </ul>
+
+    <h2 id="backend">5. Backend & Local Edge Server Architecture</h2>
+    <p>The system utilizes a dual-tier backend model: a highly available AWS Cloud API (FastAPI + Neon Postgres) paired with deployable Local Edge Servers for venue network isolation.</p>
+
+    <h3>5.1 Tech Stack & Infrastructure</h3>
     <table>
       <thead>
         <tr>
           <th>Layer</th>
-          <th>Mechanism</th>
-          <th>Window</th>
-          <th>Where Enforced</th>
+          <th>Technology</th>
+          <th>Architectural Role</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Layer 1</td>
-          <td>App NFC lock after successful write</td>
-          <td>3 seconds</td>
-          <td>POS App (client-side)</td>
+          <td><strong>API Framework</strong></td>
+          <td>FastAPI (Python 3.12)</td>
+          <td>Asynchronous handling of high-concurrency sync spikes and POS checkouts.</td>
         </tr>
         <tr>
-          <td>Layer 2</td>
-          <td>On-card nonce check — <code>last_txn_nonce</code> must differ</td>
-          <td>5 seconds</td>
-          <td>POS App reads card nonce before writing</td>
+          <td><strong>Primary Database</strong></td>
+          <td>PostgreSQL (Neon Cloud)</td>
+          <td>ACID-compliant master ledger. Employs connection pooling (`pool_pre_ping=True`).</td>
         </tr>
         <tr>
-          <td>Layer 3</td>
-          <td>Server idempotency key on sync endpoint</td>
-          <td>Permanent</td>
-          <td>FastAPI backend rejects duplicate <code>txn_id</code></td>
+          <td><strong>Edge Database</strong></td>
+          <td>PostgreSQL (Dockerized local)</td>
+          <td>Runs on venue laptops/mini-PCs. Handles sub-10ms local checkouts during network drops.</td>
+        </tr>
+        <tr>
+          <td><strong>Background Jobs</strong></td>
+          <td>Celery + Redis Broker</td>
+          <td>Processes asynchronous edge sync batches, PDF settlement generation, and webhook queues.</td>
+        </tr>
+        <tr>
+          <td><strong>Realtime Push</strong></td>
+          <td>Socket.IO + Redis Pub/Sub</td>
+          <td>Streams live transaction events and fraud alerts to the Admin Panel.</td>
         </tr>
       </tbody>
     </table>
-
-    <h4>Offline Queue Architecture</h4>
-    <ul>
-      <li>Every transaction is written to local SQLite FIRST, always. The payment flow is identical online or offline.
-      </li>
-      <li><code>expo-background-fetch</code> attempts sync when internet becomes available, even when the app is
-        backgrounded.</li>
-      <li>The on-card <code>txn_counter</code> increments with every payment. The server uses this counter to
-        reconstruct the correct chronological order even when transactions from multiple stalls arrive out of sequence.
-      </li>
-      <li>End-of-day "Force Sync Now" button pushes all queued transactions regardless of background sync delays.</li>
-    </ul>
-
-    <h3 id="app2-backend">3.2 Backend Interactions (POS App)</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Action</th>
-          <th>Endpoint</th>
-          <th>Auth</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Staff login</td>
-          <td><code>POST /auth/login</code></td>
-          <td>None</td>
-          <td>Returns JWT (role: booth_staff). Stall assignment in token claims.</td>
-        </tr>
-        <tr>
-          <td>Sync transactions</td>
-          <td><code>POST /sync/batch</code></td>
-          <td>JWT booth_staff</td>
-          <td>Body: array of offline transactions. Server deduplicates by <code>txn_id</code>.</td>
-        </tr>
-        <tr>
-          <td>Check card status</td>
-          <td><code>GET /cards/{uid}/status</code></td>
-          <td>JWT booth_staff</td>
-          <td>Used when online — checks if card is blocked before NFC write.</td>
-        </tr>
-        <tr>
-          <td>Flag refund</td>
-          <td><code>POST /refunds/flag</code></td>
-          <td>JWT booth_staff</td>
-          <td>Creates refund request. Cannot approve — supervisor role required.</td>
-        </tr>
-        <tr>
-          <td>Force sync</td>
-          <td><code>POST /sync/force</code></td>
-          <td>JWT booth_staff</td>
-          <td>Flushes entire local SQLite queue. Called at event close.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2 id="app3">4. App 3 — FizMaa Admin Panel (Web Dashboard)</h2>
-    <p><strong>One-line purpose:</strong> Live visibility into every rupee moving through the event, with tools to
-      handle disputes, freeze lost cards, flag fraud, and run end-of-day settlement.</p>
-
-    <h3 id="app3-frontend">4.1 Frontend Architecture</h3>
-    <p>All three roles — Admin/Organizer, Supervisor, and Accountant — use the same web application but see different
-      views and have different permissions. Role enforcement happens at the API level via JWT claims. The frontend
-      renders only the views that the API responds to for that role.</p>
-
-    <h4>Tech Stack</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Layer</th>
-          <th>Tool</th>
-          <th>Reason</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Framework</td>
-          <td>Next.js (App Router)</td>
-          <td>Server components for fast initial load. Client components for live-updating dashboard widgets.</td>
-        </tr>
-        <tr>
-          <td>Language</td>
-          <td>TypeScript</td>
-          <td>Shared type definitions with backend Pydantic models via openapi-typescript codegen.</td>
-        </tr>
-        <tr>
-          <td>Charts</td>
-          <td>Recharts</td>
-          <td>Live revenue graphs, transactions-per-minute sparklines, category pie charts.</td>
-        </tr>
-        <tr>
-          <td>Tables</td>
-          <td>TanStack Table</td>
-          <td>Sortable, filterable, virtualized transaction tables. Handles large event datasets without DOM thrashing.
-          </td>
-        </tr>
-        <tr>
-          <td>Realtime</td>
-          <td>Socket.IO client</td>
-          <td>Connects to backend Socket.IO server for live dashboard pushes. Auto-reconnects on disconnect.</td>
-        </tr>
-        <tr>
-          <td>Auth</td>
-          <td>JWT + role-gated routes</td>
-          <td>Next.js middleware reads role claim from JWT cookie. <code>booth_staff</code> tokens rejected at route
-            level.</td>
-        </tr>
-        <tr>
-          <td>Styling</td>
-          <td>Tailwind CSS</td>
-          <td>Utility-first. No CSS-in-JS runtime overhead for the dashboard.</td>
-        </tr>
-        <tr>
-          <td>PDF Export</td>
-          <td>React-PDF (via FastAPI)</td>
-          <td>Settlement reports generated server-side by FastAPI and streamed as PDF downloads.</td>
-        </tr>
-        <tr>
-          <td>Excel Export</td>
-          <td>SheetJS (client-side)</td>
-          <td>Per-stall transaction exports generated in the browser without a server round-trip.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h4>Role-Based Views</h4>
-    <p><strong>Admin / Organizer</strong></p>
-    <ul>
-      <li>Live Event Dashboard — real-time counters via Socket.IO: total revenue, active cards, top-up vs spending
-        volume, transactions per minute, stall leaderboard</li>
-      <li>Stall Management — create stalls, assign staff, set category tags (Food / Beverage / Merch)</li>
-      <li>Event Configuration — max top-up per card, refund window duration, velocity alert thresholds, terminal
-        assignments</li>
-      <li>Velocity Anomaly Alerts — when a vendor's offline batch sync shows average transaction value more than 3×
-        their online baseline, the system auto-flags the stall, freezes their payout, and surfaces an alert for manual
-        review</li>
-      <li>Card Management — view all issued cards, current server balance, status (active / blocked / expired).
-        <strong>Block or freeze any card UID instantly.</strong> This is the admin-side of the lost card freeze flow —
-        when an attendee reports a lost card through the Companion App, the freeze request surfaces here for the admin
-        to confirm and action.
-      </li>
-      <li>End-of-Day Settlement — per-vendor payout calculation, refund deduction, payout trigger, PDF and Excel report
-        generation</li>
-    </ul>
-
-    <p><strong>Supervisor</strong></p>
-    <ul>
-      <li>Refund Approval Queue — review each refund request raised by attendees or booth staff, approve or reject. On
-        approval, a terminal writes the refunded balance back to the physical card.</li>
-      <li>Lost Card Replacement — scan a new blank card, enter the lost card UID (from the attendee's account), transfer
-        server balance, block the old UID. Done in under 2 minutes.</li>
-      <li>Stall Audit — real-time full transaction list for any stall. Used during manual audits of flagged vendors.
-      </li>
-      <li>Dispute Log — full history of every flagged transaction with resolution status.</li>
-    </ul>
-
-    <p><strong>Accountant</strong></p>
-    <ul>
-      <li>Read-only access to settlement reports and transaction exports.</li>
-      <li>Download per-event reports in PDF or Excel. Filter by stall, category, time window, or transaction type.</li>
-      <li>No write access — cannot approve refunds, block cards, or modify event configuration.</li>
-    </ul>
-
-    <h3 id="app3-backend">4.2 Backend Interactions (Admin Panel)</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Action</th>
-          <th>Endpoint</th>
-          <th>Role Required</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Live dashboard data</td>
-          <td><code>GET /dashboard/live</code></td>
-          <td>admin</td>
-          <td>Returns current counters. Also pushed via Socket.IO on every transaction.</td>
-        </tr>
-        <tr>
-          <td>Stall list + revenue</td>
-          <td><code>GET /stalls</code></td>
-          <td>admin, supervisor</td>
-          <td>Includes per-stall revenue, txn count, sync status.</td>
-        </tr>
-        <tr>
-          <td>Velocity alerts</td>
-          <td><code>GET /alerts/velocity</code></td>
-          <td>admin</td>
-          <td>Returns flagged stalls with anomaly score and transaction sample.</td>
-        </tr>
-        <tr>
-          <td>Approve/reject payout</td>
-          <td><code>POST /settlement/stalls/{id}/payout</code></td>
-          <td>admin</td>
-          <td>Body: <code>{ action: approve | reject }</code>. Frozen stalls blocked until manual approval.</td>
-        </tr>
-        <tr>
-          <td>Block / freeze card</td>
-          <td><code>POST /cards/{uid}/block</code></td>
-          <td>admin, supervisor</td>
-          <td>Immediate. Propagates to all online terminals instantly. Offline terminals pick it up on next tap.</td>
-        </tr>
-        <tr>
-          <td>Approve refund</td>
-          <td><code>POST /refunds/{id}/approve</code></td>
-          <td>supervisor</td>
-          <td>Queues Celery task to write refund to card at next terminal tap.</td>
-        </tr>
-        <tr>
-          <td>Lost card replace</td>
-          <td><code>POST /cards/replace</code></td>
-          <td>supervisor</td>
-          <td>Body: <code>{ old_uid, new_uid }</code>. Transfers balance, blocks old UID.</td>
-        </tr>
-        <tr>
-          <td>Settlement report</td>
-          <td><code>POST /settlement/generate</code></td>
-          <td>admin</td>
-          <td>Async. Celery generates PDF + Excel, stores in S3, returns download URL.</td>
-        </tr>
-        <tr>
-          <td>Transaction export</td>
-          <td><code>GET /transactions/export</code></td>
-          <td>admin, accountant</td>
-          <td>CSV stream. Filterable by stall, time, type.</td>
-        </tr>
-        <tr>
-          <td>Stall audit</td>
-          <td><code>GET /stalls/{id}/transactions</code></td>
-          <td>admin, supervisor</td>
-          <td>Full txn list, real-time. Supports live refresh.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2 id="backend">5. Backend Architecture</h2>
-    <p>One FastAPI backend serves all three apps. It is the only system with write access to the PostgreSQL ledger.
-      Security is enforced entirely at the API level through JWT role claims.</p>
-
-    <h3 id="backend-stack">5.1 Tech Stack</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Layer</th>
-          <th>Tool</th>
-          <th>Reason</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Framework</td>
-          <td>FastAPI (Python)</td>
-          <td>Async by default. Handles hundreds of concurrent sync requests from stalls reconnecting after network
-            outages.</td>
-        </tr>
-        <tr>
-          <td>Database</td>
-          <td>PostgreSQL</td>
-          <td>ACID-compliant. Financial data requires proper transactions, rollbacks, and complete audit logs. No NoSQL.
-          </td>
-        </tr>
-        <tr>
-          <td>Cache</td>
-          <td>Redis</td>
-          <td>Caches card balances (TTL 30s). Acts as pub/sub broker for Socket.IO live dashboard events.</td>
-        </tr>
-        <tr>
-          <td>Background Jobs</td>
-          <td>Celery (Redis broker)</td>
-          <td>Handles offline sync batches, reconciliation, report generation, settlement payouts — all async.</td>
-        </tr>
-        <tr>
-          <td>Scheduled Jobs</td>
-          <td>Celery Beat</td>
-          <td>Auto-settle after event end, auto-archive old event data, periodic reconciliation health checks.</td>
-        </tr>
-        <tr>
-          <td>Auth</td>
-          <td>JWT + Refresh Tokens</td>
-          <td>Role encoded in token claims: <code>admin</code>, <code>supervisor</code>, <code>booth_staff</code>,
-            <code>accountant</code>, <code>attendee</code>. Validated on every request.
-          </td>
-        </tr>
-        <tr>
-          <td>Realtime</td>
-          <td>Socket.IO</td>
-          <td>Pushes live transaction events to the Admin Panel dashboard. Redis pub/sub allows horizontal scaling.</td>
-        </tr>
-        <tr>
-          <td>ORM</td>
-          <td>SQLAlchemy + Alembic</td>
-          <td>Clean async ORM models. Alembic handles version-controlled database migrations.</td>
-        </tr>
-        <tr>
-          <td>File Storage</td>
-          <td>AWS S3</td>
-          <td>Settlement report PDFs, Excel exports. Pre-signed URLs for secure time-limited downloads.</td>
-        </tr>
-        <tr>
-          <td>AI Proxy</td>
-          <td>Anthropic Claude API</td>
-          <td>Backend proxy for attendee chatbot. Adds event context to system prompt. Attendee financial data never
-            sent raw to Claude.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3 id="backend-endpoints">5.2 Core Endpoints — Domain Summary</h3>
-    <p><strong>Authentication <code>/auth/*</code></strong></p>
-    <ul>
-      <li><code>POST /auth/register</code> — attendee self-registration</li>
-      <li><code>POST /auth/login</code> — any role. Returns JWT + refresh token. Role claim set from user record in DB.
-      </li>
-      <li><code>POST /auth/refresh</code> — exchange refresh token for new access token. Old token invalidated.</li>
-    </ul>
-
-    <p><strong>Cards <code>/cards/*</code></strong></p>
-    <ul>
-      <li><code>POST /cards/link</code> — attendee links their NFC card UID to their account</li>
-      <li><code>GET /cards/{uid}/balance</code> — returns server balance (cached in Redis, TTL 30s)</li>
-      <li><code>GET /cards/{uid}/status</code> — returns active / blocked / expired (used by POS before writes)</li>
-      <li><code>POST /cards/{uid}/block</code> — admin or supervisor blocks/freezes a card. Instant propagation to
-        online terminals.</li>
-      <li><code>POST /cards/replace</code> — supervisor transfers balance from lost card UID to new card UID</li>
-    </ul>
-
-    <p><strong>Transactions <code>/transactions/*</code> and <code>/sync/*</code></strong></p>
-    <ul>
-      <li><code>GET /transactions</code> — paginated history, filterable by card, stall, time, type</li>
-      <li><code>POST /sync/batch</code> — POS App posts offline transaction batches. Idempotent: duplicate
-        <code>txn_id</code> is silently ignored.
-      </li>
-      <li><code>POST /sync/force</code> — force-flush entire SQLite queue at event close</li>
-      <li>Celery task on batch receipt: reconcile transaction order using on-card <code>txn_counter</code>, update
-        PostgreSQL ledger, publish Socket.IO event</li>
-    </ul>
-
-    <p><strong>Top-Ups <code>/topups/*</code></strong></p>
-    <ul>
-      <li><code>POST /topups/initiate</code> — creates Razorpay order, returns <code>order_id</code></li>
-      <li><code>POST /topups/webhook</code> — Razorpay calls this with HMAC-signed payload. Validates signature, queues
-        Celery task to write balance to card at next Top-Up terminal.</li>
-    </ul>
-
-    <p><strong>Refunds <code>/refunds/*</code></strong></p>
-    <ul>
-      <li><code>POST /refunds/request</code> — attendee raises a dispute on a specific transaction</li>
-      <li><code>POST /refunds/flag</code> — booth staff flags a transaction for refund</li>
-      <li><code>POST /refunds/{id}/approve</code> — supervisor approves. Queues Celery task to write refunded balance
-        back to card.</li>
-      <li><code>POST /refunds/{id}/reject</code> — supervisor rejects with reason.</li>
-    </ul>
-
-    <p><strong>AI Chatbot <code>/ai/*</code></strong></p>
-    <ul>
-      <li><code>POST /ai/chat</code> — receives attendee message, constructs a system prompt with event context (current
-        balance, recent 10 transactions, event name, stall map summary), forwards to Claude API, returns response.
-        Conversation history maintained per session in Redis with TTL.</li>
-    </ul>
-
-    <p><strong>Settlement <code>/settlement/*</code></strong></p>
-    <ul>
-      <li><code>POST /settlement/generate</code> — admin triggers. Celery calculates per-stall net (gross minus approved
-        refunds), generates PDF and Excel, uploads to S3, emails download link.</li>
-      <li><code>POST /settlement/stalls/{id}/payout</code> — admin approves or rejects individual stall payout. Frozen
-        stalls (anomaly flag) require explicit approval.</li>
-    </ul>
-
-    <p><strong>Realtime <code>/ws/*</code></strong></p>
-    <ul>
-      <li>Socket.IO endpoint for Admin Panel. Receives events: <code>txn_created</code>, <code>alert_raised</code>,
-        <code>card_blocked</code>, <code>sync_received</code>
-      </li>
-    </ul>
-
-    <h3 id="backend-idempotency">5.3 Idempotency and Reconciliation</h3>
-    <blockquote>
-      Every transaction the POS App generates is assigned a UUID (<code>txn_id</code>) at the moment of writing to
-      SQLite on the phone. When the batch is synced to the server, the endpoint checks: "Does this <code>txn_id</code>
-      already exist in the ledger?" If yes, it returns <code>200 OK</code> and discards the duplicate silently. This
-      means POS Apps can retry failed sync requests indefinitely without creating phantom charges.
-    </blockquote>
-    <p>Transaction order reconciliation uses the on-card <code>txn_counter</code>. Even when three stalls sync
-      simultaneously with interleaved timestamps, the server reconstructs the correct sequence of debits and credits for
-      any given card by sorting by <code>txn_counter</code>.</p>
 
     <h2 id="security">6. Security Architecture</h2>
-
-    <h3 id="security-firewall">6.1 Firewall — Is it Needed?</h3>
-    <p>Yes. A firewall is required, but it operates at the infrastructure level (cloud VPC security group rules), not as
-      a separate physical appliance. The firewall's job is to ensure the database and cache are never reachable from the
-      public internet.</p>
-
-    <h4>What to Open and What to Close</h4>
+    <h3>6.1 The Four Event Security Problems — Solved</h3>
     <table>
       <thead>
         <tr>
-          <th>Resource</th>
-          <th>Port</th>
-          <th>Public?</th>
-          <th>Who Can Access</th>
-          <th>Why</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>FastAPI (HTTPS)</td>
-          <td>443</td>
-          <td>Yes</td>
-          <td>All apps, Razorpay webhook</td>
-          <td>All app communication</td>
-        </tr>
-        <tr>
-          <td>FastAPI (HTTP)</td>
-          <td>80</td>
-          <td>Yes (redirect only)</td>
-          <td>Redirect to 443</td>
-          <td>HTTPS enforcement</td>
-        </tr>
-        <tr>
-          <td>PostgreSQL</td>
-          <td>5432</td>
-          <td><strong>NO</strong></td>
-          <td>FastAPI container only (VPC internal)</td>
-          <td>Prevents direct DB brute-force</td>
-        </tr>
-        <tr>
-          <td>Redis</td>
-          <td>6379</td>
-          <td><strong>NO</strong></td>
-          <td>FastAPI + Celery workers (VPC internal)</td>
-          <td>Cache and broker not publicly accessible</td>
-        </tr>
-        <tr>
-          <td>Celery workers</td>
-          <td>Internal</td>
-          <td><strong>NO</strong></td>
-          <td>Celery Beat + FastAPI (VPC internal)</td>
-          <td>Job processing only</td>
-        </tr>
-        <tr>
-          <td>S3 / File storage</td>
-          <td>443 (HTTPS)</td>
-          <td>Via pre-signed URLs only</td>
-          <td>Authenticated users with time-limited tokens</td>
-          <td>Reports download</td>
-        </tr>
-      </tbody>
-    </table>
-    <blockquote>
-      <strong>Core firewall rule:</strong> PostgreSQL (port 5432) and Redis (port 6379) must be completely closed to the
-      public internet. Only the FastAPI container, whitelisted by VPC security group rules, may communicate with them.
-    </blockquote>
-
-    <h3 id="security-mobile">6.2 Mobile App Security</h3>
-    <p><strong>Attendee App (FizMaa Companion)</strong></p>
-    <ul>
-      <li>All communication over HTTPS (TLS 1.3 minimum)</li>
-      <li>JWT stored in Expo Secure Store (Keychain on iOS, Keystore on Android) — never in AsyncStorage</li>
-      <li>NFC only reads card UID — no write access, no balance data exposed on the attendee's phone</li>
-      <li>AI chat messages proxied through backend — Claude API key never in the mobile bundle</li>
-    </ul>
-
-    <p><strong>POS App (FizMaa POS) — Higher Security Requirements</strong></p>
-    <ul>
-      <li>All communication over HTTPS (TLS 1.3 minimum)</li>
-      <li>SSL Pinning implemented via a custom OkHttp interceptor: the app's expected server certificate hash is bundled
-        at build time. If a man-in-the-middle proxy (Wireshark, Charles Proxy, Burp Suite) intercepts the connection,
-        the certificate hash won't match and the connection is killed before any data is transmitted.</li>
-      <li>HMAC signing secret key (for computing signature over card balance sector) stored in Expo Secure Store — never
-        in JS
-        bundle, never in source code, injected at EAS Build time via EAS Secrets.</li>
-      <li>JWT scoped to <code>booth_staff</code> role — cannot call admin, supervisor, or attendee-exclusive endpoints.
-      </li>
-      <li>Device binding (Phase 2): each device registered by IMEI/Android ID. A POS JWT will only work from the
-        registered device.</li>
-    </ul>
-
-    <h3 id="security-problems">6.3 The Four Security Problems — Solved</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Problem</th>
+          <th>Threat Vector</th>
           <th>Attack Scenario</th>
-          <th>Solution</th>
+          <th>FizMaa Architectural Solution</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Lost card</td>
-          <td>Finder taps lost card at a stall and spends the balance</td>
-          <td>Attendee reports via Companion App &rarr; admin/supervisor freezes card UID in Admin Panel &rarr; online
-            terminals block within seconds &rarr; Supervisor Booth replaces card with balance transferred</td>
+          <td><strong>Torn Write Corruption</strong></td>
+          <td>Attendee pulls card away mid-write; chip balance sectors become readable/corrupted.</td>
+          <td><strong>Eliminated by Design.</strong> Chips are read-only (~10ms scan). All balance mutations execute atomically inside PostgreSQL transactions.</td>
         </tr>
         <tr>
-          <td>Torn write</td>
-          <td>Phone battery dies mid-NFC-write, card data corrupted</td>
-          <td>Two-field write-verify protocol. <code>balance_shadow</code> recovers the last valid state if
-            <code>balance_primary</code> is corrupted mid-write.
-          </td>
+          <td><strong>Lost Card Spending</strong></td>
+          <td>Finder taps a dropped wristband at stalls to spend remaining funds.</td>
+          <td>Attendee clicks "Freeze" in Companion App &rarr; Cloud pushes revocation flag to Edge Servers &rarr; Terminal rejects card on next tap.</td>
         </tr>
         <tr>
-          <td>Out-of-order sync</td>
-          <td>Top-up not yet on server when payment arrives; server balance looks negative</td>
-          <td>On-card <code>txn_counter</code>. Server holds reconciliation until all transactions for a card are
-            received in order via Celery.</td>
+          <td><strong>Client-Side Top-Up Spoofing</strong></td>
+          <td>Malicious user intercepts mobile network response to fake a successful UPI payment.</td>
+          <td>Top-ups are strictly gated by **Razorpay Webhook verification** (`POST /topups/webhook`) with server-side HMAC signature validation.</td>
         </tr>
         <tr>
-          <td>Vendor overcharges offline</td>
-          <td>Stall goes to airplane mode, charges ₹1,500 instead of ₹150</td>
-          <td>Visual Handshake Screen (attendee sees amount before tapping) + velocity anomaly detection freezes payout
-            on sync.</td>
-        </tr>
-        <tr>
-          <td>Double-tap charge</td>
-          <td>Card read twice within 1 second, balance deducted twice</td>
-          <td>3-layer defence: app NFC lock (3s) + on-card nonce check (5s) + server idempotency key (permanent).</td>
+          <td><strong>Vendor Offline Overcharging</strong></td>
+          <td>Stall goes disconnected and bills ₹1,500 instead of ₹150 for an item.</td>
+          <td>Mandatory Visual Handshake Screen + backend **Velocity Anomaly ML algorithm** auto-freezes vendor settlement payouts upon batch sync.</td>
         </tr>
       </tbody>
     </table>
 
-    <h2 id="github">7. GitHub Workflow</h2>
-    <p>All three apps and the backend live in a single monorepo. Protected branches ensure no code reaches production
-      without review.</p>
-
-    <h3 id="github-branch">7.1 Branch Structure</h3>
-    <pre><code>[feature/*] ──(PR + review)──&gt; [develop] ──(release tag)──&gt; [main]
-                                                  ^
-[hotfix/*] ───────────────────────────────────────┘ (also merged to develop)
-</code></pre>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Branch</th>
-          <th>Purpose</th>
-          <th>Who Can Push</th>
-          <th>Merge Requires</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>main</code></td>
-          <td>Production. Deployed automatically on merge.</td>
-          <td>No one directly</td>
-          <td>PR from <code>develop</code> + 2 approvals + all CI checks green</td>
-        </tr>
-        <tr>
-          <td><code>develop</code></td>
-          <td>Staging. Integration branch for all features.</td>
-          <td>No one directly</td>
-          <td>PR from <code>feature/*</code> + 1 approval + CI green</td>
-        </tr>
-        <tr>
-          <td><code>feature/*</code></td>
-          <td>Individual feature or fix. Short-lived.</td>
-          <td>The developer</td>
-          <td>PR opened to <code>develop</code></td>
-        </tr>
-        <tr>
-          <td><code>hotfix/*</code></td>
-          <td>Emergency fix to production.</td>
-          <td>The on-call engineer</td>
-          <td>PR to <code>main</code> + <code>develop</code> simultaneously</td>
-        </tr>
-        <tr>
-          <td><code>release/*</code></td>
-          <td>Release candidate branch for EAS mobile builds.</td>
-          <td>CI only</td>
-          <td>Merge to <code>main</code> after QA sign-off</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3 id="github-pr">7.2 &amp; 7.3 Pull Request Rules &amp; Naming Convention</h3>
-    <ul>
-      <li>Backend features: <code>feature/backend-idempotent-sync</code>, <code>feature/backend-velocity-alerts</code>,
-        <code>feature/backend-ai-chat-proxy</code>
-      </li>
-      <li>Attendee App: <code>feature/companion-topup-razorpay</code>, <code>feature/companion-ai-chatbot</code>,
-        <code>bugfix/companion-nfc-uid-read</code>
-      </li>
-      <li>POS App: <code>feature/pos-handshake-screen</code>, <code>bugfix/pos-nfc-anti-tear</code></li>
-      <li>Admin Panel: <code>feature/admin-card-freeze</code>, <code>feature/admin-settlement-export</code>,
-        <code>feature/admin-live-dashboard</code>
-      </li>
-      <li>Hotfixes: <code>hotfix/block-card-endpoint-500</code>, <code>hotfix/pos-nfc-crash-android-14</code></li>
-      <li>PR title must reference a ticket number: <code>[FIZ-142] Add idempotency key to sync endpoint</code></li>
-      <li>PR description must include: what changed, why, how to test, and any migration required</li>
-      <li>All CI checks (lint, typecheck, tests) must be green before review is requested</li>
-      <li>POS App PRs touching the NFC write path require a second reviewer with NFC domain knowledge</li>
-      <li>Backend PRs touching the settlement or ledger require a database migration review</li>
-    </ul>
-
-    <h3 id="github-repo">7.4 Monorepo Structure</h3>
+    <h2 id="github">7. GitHub Workflow & Monorepo Structure</h2>
     <pre><code>/
 ├── apps/
-│   ├── companion/          # FizMaa Companion (React Native / Expo)
-│   ├── pos/                # FizMaa POS (React Native / Expo)
-│   └── admin/              # FizMaa Admin Panel (Next.js)
-├── backend/                # FastAPI application
-│   └── alembic/            # Database migration scripts
+│   ├── companion/          # React Native / Expo (iOS + Android)
+│   ├── pos/                # React Native / Expo (Android Only - Phase 1)
+│   └── admin/              # Next.js App Router Dashboard
+├── backend/                # Cloud FastAPI Application & Alembic Migrations
+├── edge-server/            # Dockerized Local Event Edge Server (FastAPI + Local Postgres)
 ├── packages/
-│   └── shared-types/       # TypeScript types shared across all three apps
-├── .github/
-│   └── workflows/          # All CI/CD pipeline definitions
-├── docker/                 # Dockerfiles and docker-compose configs
-└── infra/                  # Terraform infrastructure-as-code (VPC, ECS, RDS, ElastiCache)
-</code></pre>
+│   └── shared-types/       # TypeScript interfaces shared across mobile and web
+└── docker-compose.edge.yml # One-click deployment script for venue laptops</code></pre>
 
     <h2 id="cicd">8. CI/CD Pipeline</h2>
-    <p>The pipeline runs on GitHub Actions. Every push to any branch triggers CI. Deployment (CD) only triggers on
-      merges to <code>develop</code> (staging) or <code>main</code> (production).</p>
-
-    <h3>8.1 Backend CI/CD</h3>
-    <p><strong>CI Phase — triggered on every PR to <code>develop</code> or <code>main</code></strong></p>
-    <ol>
-      <li>Checkout code and set up Python 3.12 with pip cache</li>
-      <li>Install dependencies from <code>requirements.txt</code></li>
-      <li>Run <code>ruff</code> linter — enforces code style and import ordering</li>
-      <li>Run <code>mypy</code> type checker — ensures Pydantic model type safety</li>
-      <li>Spin up temporary PostgreSQL and Redis instances via GitHub Actions service containers</li>
-      <li>Run Alembic migrations against the test database</li>
-      <li>Execute <code>pytest</code> suite — covers: idempotency tests, velocity anomaly detection, refund approval
-        flow, JWT role enforcement, AI proxy prompt construction</li>
-      <li>Check test coverage — must be above 80% or CI fails</li>
-    </ol>
-    <p><strong>CD Phase — triggered on merge to <code>main</code></strong></p>
-    <ol>
-      <li>Build Docker image from <code>backend/Dockerfile</code></li>
-      <li>Tag image with git SHA: <code>fizmaa-backend:abc1234</code></li>
-      <li>Push image to AWS ECR (Elastic Container Registry)</li>
-      <li>Run Alembic database migrations against production PostgreSQL (inside the pipeline, before traffic switches)
-      </li>
-      <li>Deploy new task definition to AWS ECS. ECS performs a blue-green swap: new container health-checked, traffic
-        shifted, old container terminated.</li>
-      <li>Post-deploy smoke test: call <code>GET /health</code> on the new deployment. If it fails, ECS automatically
-        rolls back to the previous task definition.</li>
-      <li>Notify Slack <code>#deployments</code> with deployment summary</li>
-    </ol>
-    <blockquote>
-      <strong>Zero-downtime guarantee:</strong> The ECS blue-green deployment means no in-flight sync requests from
-      field POS devices are dropped during a deployment. The old container stays alive until all its connections drain
-      naturally.
-    </blockquote>
-
-    <h3>8.2 Mobile App CI/CD (Companion + POS)</h3>
-    <p><strong>CI Phase — triggered on every PR</strong></p>
-    <ol>
-      <li>Checkout code, set up Node.js 20 with npm cache</li>
-      <li>Install dependencies from <code>package.json</code></li>
-      <li>Run ESLint and TypeScript compiler (<code>tsc --noEmit</code>) — enforces strict type checking on all
-        financial logic</li>
-      <li>Run Jest unit tests — covers: SQLite queue initialization, AES encryption/decryption round-trip, Zustand store
-        state transitions, Razorpay mock, AI format</li>
-      <li>Run Expo Doctor — validates that all native module configurations are compatible with the target Expo SDK
-        version</li>
-    </ol>
-
-    <p><strong>CD Phase — triggered on merge to <code>main</code> or <code>release/*</code></strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Companion App (Public Release)</th>
-          <th>POS App (Private Distribution)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Build</td>
-          <td>EAS Build triggered automatically. Builds Android <code>.aab</code> and iOS <code>.ipa</code>.</td>
-          <td>EAS Build triggered automatically. Android <code>.apk</code> only.</td>
-        </tr>
-        <tr>
-          <td>Distribution</td>
-          <td>Submitted to Google Play Internal Testing and Apple TestFlight. Promoted to public after QA sign-off.</td>
-          <td>NOT submitted to Play Store. Distributed via authenticated staff portal or MDM.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p><strong>OTA Updates — When to Use</strong></p>
     <ul>
-      <li>Minor bug fixes and UI tweaks that do not touch native modules &rarr; trigger an Expo OTA update. The
-        JavaScript bundle on the device updates silently in the background on next app open.</li>
-      <li>Changes to NFC drivers, camera, Bluetooth, or any native module &rarr; requires a full EAS Build and new app
-        binary. OTA cannot update native code.</li>
-      <li>POS App: OTA updates are preferred during a live event — vendors do not need to re-download the app.</li>
+      <li><strong>Backend CI/CD (GitHub Actions):</strong> Runs `ruff` linting, `mypy` strict type-checking, and executes `pytest` against ephemeral Postgres containers. Auto-deploys to AWS ECS on `main` merge using zero-downtime blue-green tasks.</li>
+      <li><strong>POS Mobile Build (EAS Build):</strong> Automatically compiles Android APKs/AABs on release tags. Builds are distributed directly to vendor devices via MDM or staff download portals (Not published to public App Stores).</li>
     </ul>
-
-    <h3>8.3 Admin Panel CI/CD</h3>
-    <p><strong>CI Phase</strong></p>
-    <ol>
-      <li>ESLint, TypeScript check, Jest unit tests for settlement calculation logic</li>
-      <li>Lighthouse CI — performance score must be above 90</li>
-    </ol>
-    <p><strong>CD Phase — merge to <code>main</code></strong></p>
-    <ol>
-      <li><code>next build</code> produces an optimized static + server bundle</li>
-      <li>Docker image built, pushed to ECR</li>
-      <li>Deployed to AWS ECS (or Vercel for faster iteration in early phases)</li>
-    </ol>
 
     <h2 id="deployment">9. Deployment Process</h2>
-
-    <h3>9.1 Infrastructure Overview</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Component</th>
-          <th>Service</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Cloud provider</td>
-          <td>AWS (production) / Railway (early launch)</td>
-          <td>ECS for auto-scaling backend. Railway for fast zero-config early deploys.</td>
-        </tr>
-        <tr>
-          <td>Container orchestration</td>
-          <td>AWS ECS (Fargate)</td>
-          <td>Serverless containers — no EC2 instances to manage.</td>
-        </tr>
-        <tr>
-          <td>Database</td>
-          <td>AWS RDS for PostgreSQL</td>
-          <td>Multi-AZ for high availability. Automated backups retained 30 days.</td>
-        </tr>
-        <tr>
-          <td>Cache / Broker</td>
-          <td>AWS ElastiCache for Redis</td>
-          <td>Cluster mode. Redis pub/sub for Socket.IO fanout.</td>
-        </tr>
-        <tr>
-          <td>File storage</td>
-          <td>AWS S3</td>
-          <td>Settlement PDF and Excel reports. Pre-signed URLs for secure downloads.</td>
-        </tr>
-        <tr>
-          <td>CDN</td>
-          <td>Cloudflare</td>
-          <td>Static assets, DDoS protection, edge caching for Admin Panel.</td>
-        </tr>
-        <tr>
-          <td>Monitoring</td>
-          <td>Grafana + Prometheus</td>
-          <td>Backend metrics: request latency, sync queue depth, Celery job backlog, error rates.</td>
-        </tr>
-        <tr>
-          <td>Error tracking</td>
-          <td>Sentry</td>
-          <td>All three apps and the backend. Source maps uploaded at build time.</td>
-        </tr>
-        <tr>
-          <td>Infrastructure as code</td>
-          <td>Terraform</td>
-          <td>VPC, ECS cluster, RDS, ElastiCache, S3, IAM roles — all version-controlled.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3>9.2 Backend Deployment — Step by Step</h3>
-    <ol>
-      <li>Developer merges PR to <code>main</code> on GitHub.</li>
-      <li>GitHub Actions CI/CD pipeline triggers automatically.</li>
-      <li>Docker image built from <code>backend/Dockerfile</code>. Image tagged with git SHA.</li>
-      <li>Image pushed to AWS ECR.</li>
-      <li>Pipeline runs Alembic migrations against production RDS. If migration fails, pipeline halts — no deployment
-        proceeds.</li>
-      <li>New ECS Task Definition created pointing to the new image tag.</li>
-      <li>ECS deploys the new task alongside the old one (blue-green). Health check: <code>GET /health</code> must
-        return <code>200</code>.</li>
-      <li>On health check pass, ECS routes all traffic to the new task. Old task drains connections and terminates.</li>
-      <li>If health check fails within 3 minutes, ECS automatically rolls back to the previous task definition. Zero
-        manual intervention required.</li>
-      <li>Slack notification sent to <code>#deployments</code> with git SHA, migration summary, and deploy time.</li>
-    </ol>
-
-    <h3>9.3 Mobile App Deployment</h3>
-    <p><strong>Attendee App (FizMaa Companion) — Public Distribution</strong></p>
-    <ul>
-      <li>Play Store: submitted to Google Play Internal Testing &rarr; Closed Testing &rarr; Production rollout (20%
-        &rarr; 50% &rarr; 100%)</li>
-      <li>App Store: submitted via EAS to TestFlight (internal) &rarr; External TestFlight &rarr; App Store Review
-        &rarr; Public release</li>
-      <li>Version naming: <code>MAJOR.MINOR.PATCH</code> — e.g. <code>1.2.0</code>. Patch releases via OTA; minor and
-        major require full build.</li>
-    </ul>
-    <p><strong>POS App (FizMaa POS) — Closed Distribution</strong></p>
-    <p>The POS App must NOT be publicly available on the Play Store. It is distributed via one of:</p>
-    <ul>
-      <li>Expo Enterprise Distribution — devices enroll by scanning a QR code from an authenticated staff portal</li>
-      <li>Android Enterprise MDM — devices are pre-configured by the organizer's IT team before being handed to vendors
-        at the venue gate</li>
-    </ul>
-    <p>This prevents unauthorized parties from installing and operating a rogue POS terminal.</p>
-    <ul>
-      <li>Vendors receive a pre-configured device at the venue entrance gate, or download the specific build from an
-        authenticated staff portal using their staff credentials.</li>
-      <li>Device IMEI registered in the backend on first login. Tokens issued to unregistered devices are rejected
-        (Phase 2 feature).</li>
-    </ul>
-
-    <p><strong>Admin Panel — Web Deployment</strong></p>
-    <ul>
-      <li>Deployed to AWS ECS behind Cloudflare CDN, or to Vercel in early phases.</li>
-      <li>No app store submission — it is a web application accessed via browser.</li>
-      <li>Staging environment at <code>admin.staging.fizmaa.in</code> mirrors production with a separate database.</li>
-    </ul>
-
-    <h3>9.4 Environment Configuration</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Variable</th>
-          <th>Used By</th>
-          <th>Stored In</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>DATABASE_URL</code></td>
-          <td>FastAPI, Alembic</td>
-          <td>AWS Secrets Manager &rarr; ECS task environment</td>
-        </tr>
-        <tr>
-          <td><code>REDIS_URL</code></td>
-          <td>FastAPI, Celery</td>
-          <td>AWS Secrets Manager &rarr; ECS task environment</td>
-        </tr>
-        <tr>
-          <td><code>JWT_SECRET</code></td>
-          <td>FastAPI</td>
-          <td>AWS Secrets Manager &rarr; ECS task environment</td>
-        </tr>
-        <tr>
-          <td><code>RAZORPAY_KEY_ID</code> / <code>RAZORPAY_SECRET</code></td>
-          <td>FastAPI webhook handler</td>
-          <td>AWS Secrets Manager &rarr; ECS task environment</td>
-        </tr>
-        <tr>
-          <td><code>ANTHROPIC_API_KEY</code></td>
-          <td>FastAPI AI proxy</td>
-          <td>AWS Secrets Manager &rarr; ECS task environment</td>
-        </tr>
-        <tr>
-          <td><code>AWS_S3_BUCKET</code></td>
-          <td>FastAPI report generator</td>
-          <td>ECS task environment (not sensitive)</td>
-        </tr>
-        <tr>
-          <td><code>SECRET_SIGNING_KEY</code></td>
-          <td>POS App</td>
-          <td>EAS Secrets &rarr; Expo Secure Store at build time. Never in JS bundle.</td>
-        </tr>
-        <tr>
-          <td><code>SENTRY_DSN</code></td>
-          <td>All apps + backend</td>
-          <td>EAS Secrets (mobile), ECS environment (backend)</td>
-        </tr>
-        <tr>
-          <td><code>NEXT_PUBLIC_SOCKET_URL</code></td>
-          <td>Admin Panel</td>
-          <td>Next.js env var</td>
-        </tr>
-      </tbody>
-    </table>
+    <p>Cloud infrastructure is managed via Terraform on AWS (ECS Fargate, RDS Postgres, ElastiCache Redis). For field deployment, the **Local Edge Server** is packaged as a single `docker-compose.edge.yml` file. Venue IT engineers execute one command on a local mini-PC connected to the food court Wi-Fi router, instantly establishing a resilient, low-latency POS checkout network.</p>
 
     <h2 id="phase">10. Phase Rollout Plan</h2>
     <table>
       <thead>
         <tr>
           <th>Phase</th>
-          <th>Scope</th>
-          <th>Key Milestone</th>
+          <th>Target Scope</th>
+          <th>Key Engineering Milestone</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Phase 1</td>
-          <td>Companion App (Android + iOS) + POS App (Android + iOS) + Backend + Admin Panel</td>
-          <td>First live event. NFC payments, offline queue, card freeze via admin, basic settlement.</td>
+          <td><strong>Phase 1 (Current)</strong></td>
+          <td>Android POS + iOS/Android Companion + Web Admin + Edge Server + NTAG216 Chips</td>
+          <td>First live festival deployment. Read-only identity cards, venue Wi-Fi edge server execution, and verified webhook settlement.</td>
         </tr>
         <tr>
-          <td>Phase 2</td>
-          <td>Device binding for POS (IMEI lock), Supervisor lost-card replacement flow, full refund write-back to card
-          </td>
-          <td>Supervisor operations mature. Fraud surface reduced.</td>
+          <td><strong>Phase 2</strong></td>
+          <td>POS Device Binding (IMEI lock) + Automated Supervisor Card Migration + Offline Queue Auditing</td>
+          <td>Hardware security hardening and automated self-service refund kiosks.</td>
         </tr>
         <tr>
-          <td>Phase 3</td>
-          <td>AI chatbot in Companion App, spending insights, velocity anomaly ML model, multi-event support</td>
-          <td>Attendee experience upgrade. Organizer analytics dashboard. Repeat event capability.</td>
-        </tr>
-        <tr>
-          <td>Phase 4</td>
-          <td>Accountant export portal, white-label
-            support</td>
-          <td>Enterprise clients.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2 id="timeline">11. Timeline and Milestones</h2>
-    <p>Here is heavily structured, four-week sprint to get FizMaa Cashless production-ready by July 31st.</p>
-
-    <h3>Week 1: The Core Brain (July 1 – July 7)</h3>
-    <p><strong>Goal:</strong> A fully functional FastAPI backend, database schema, and the Celery/Redis idempotency
-      engine. Without this, the apps have nothing to talk to.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Milestone</th>
-          <th>Key Tasks</th>
-          <th>Definition of Done</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>1. DB & Auth</strong></td>
-          <td>Setup PostgreSQL (Neon) and SQLAlchemy models. Implement JWT auth middleware.</td>
-          <td>User can register, login, and get a role-based JWT (<code>attendee</code>, <code>booth_staff</code>,
-            <code>admin</code>).
-          </td>
-        </tr>
-        <tr>
-          <td><strong>2. Core Endpoints</strong></td>
-          <td>Build CRUD for Stalls, Cards, and Users.</td>
-          <td>API can assign a UID to a user and fetch their server balance.</td>
-        </tr>
-        <tr>
-          <td><strong>3. Offline Sync Engine</strong></td>
-          <td>Build <code>POST /sync/batch</code>. Setup Redis idempotency lock.</td>
-          <td>API successfully accepts an array of offline transactions and ignores duplicate <code>txn_id</code>s.</td>
-        </tr>
-        <tr>
-          <td><strong>4. Celery Workers</strong></td>
-          <td>Configure Celery to handle the sync queue in the background.</td>
-          <td>Out-of-order nonces are correctly stitched together in PostgreSQL without blocking the main API thread.
-          </td>
+          <td><strong>Phase 3</strong></td>
+          <td>AI Spending Assistant Chatbot + Multi-Event Organization Accounts + White-Label Styling</td>
+          <td>Enterprise SaaS scaling and multi-venue analytics dashboards.</td>
         </tr>
       </tbody>
     </table>
 
-    <h3>Week 2: The Hardware Spike (July 8 – July 14)</h3>
-    <p><strong>Goal:</strong> The Android & iOS POS App. This is the highest technical risk of the project. If you
-      cannot
-      securely read/write to the NFC card offline, the ecosystem fails.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Milestone</th>
-          <th>Key Tasks</th>
-          <th>Definition of Done</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>1. React Native Setup</strong></td>
-          <td>Initialize the POS app, configure EAS Build, set up <code>expo-sqlite</code> and Zustand.</td>
-          <td>App builds successfully via EAS and runs on a physical device.</td>
-        </tr>
-        <tr>
-          <td><strong>2. NFC Read/Write</strong></td>
-          <td>Integrate <code>react-native-nfc-manager</code> and <code>react-native-crypto</code>.</td>
-          <td>App can read the encrypted balance, write a new balance, and increment the card's nonce.</td>
-        </tr>
-        <tr>
-          <td><strong>3. The Visual Handshake</strong></td>
-          <td>Build the POS UI: Keypad &rarr; Handshake Screen &rarr; NFC Tap &rarr; Success/Fail.</td>
-          <td>Vendor can type ₹150, attendee sees it, taps, and balance deducts offline.</td>
-        </tr>
-        <tr>
-          <td><strong>4. Offline Queue & Sync</strong></td>
-          <td>Hook SQLite queue to the FastAPI sync endpoint.</td>
-          <td>App can process 5 payments in Airplane Mode, and push them to the server instantly upon reconnecting to
-            WiFi.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3>Week 3: Attendee App & Admin Dashboard (July 15 – July 21)</h3>
-    <p><strong>Goal:</strong> The consumer face of the app and the live dashboard for event organizers.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Milestone</th>
-          <th>Key Tasks</th>
-          <th>Definition of Done</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>1. Next.js Admin Panel</strong></td>
-          <td>Setup Next.js App Router, Tailwind, and TanStack Tables.</td>
-          <td>Admin can log in and view a paginated, filterable table of all transactions and issued cards.</td>
-        </tr>
-        <tr>
-          <td><strong>2. Live Socket Feed</strong></td>
-          <td>Hook up <code>Socket.IO</code> between FastAPI and the Next.js dashboard.</td>
-          <td>When a terminal syncs a transaction, the Admin Panel revenue graph updates instantly without refreshing.
-          </td>
-        </tr>
-        <tr>
-          <td><strong>3. Companion App UI</strong></td>
-          <td>Initialize the Attendee React Native app. Build login, balance view, and transaction history.</td>
-          <td>Attendee can log in, tap their card to link the UID, and see their live server balance.</td>
-        </tr>
-        <tr>
-          <td><strong>4. Razorpay Integration</strong></td>
-          <td>Wire Razorpay SDK in the Companion App to the backend webhook.</td>
-          <td>Attendee can pay ₹500 online, and the database <code>server_balance</code> updates securely.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3>Week 4: Deployment, Security & Simulation (July 22 – July 31)</h3>
-    <p><strong>Goal:</strong> Move from <code>localhost</code> to production, lock down the security, and break the
-      system intentionally to ensure it recovers.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Milestone</th>
-          <th>Key Tasks</th>
-          <th>Definition of Done</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>1. Cloud Deployment</strong></td>
-          <td>Dockerize FastAPI. Deploy to AWS ECS or Render. Setup Cloudflare for Admin panel.</td>
-          <td>Backend is live on a public HTTPS domain. Database ports are firewalled from the public.</td>
-        </tr>
-        <tr>
-          <td><strong>2. CI/CD & OTA</strong></td>
-          <td>Setup GitHub Actions for backend linting/testing. Configure Expo OTA updates.</td>
-          <td>Pushing to <code>main</code> auto-deploys the backend and pushes JS bundle updates to the mobile apps.
-          </td>
-        </tr>
-        <tr>
-          <td><strong>3. Card Freeze Flow</strong></td>
-          <td>Build the "Kill Switch" flow across all three apps.</td>
-          <td>Attendee clicks "Freeze", Admin approves, and POS terminal immediately rejects the card.</td>
-        </tr>
-        <tr>
-          <td><strong>4. The "Chaos" Test</strong></td>
-          <td>Buy blank cards. Simulate a live event in your room with real network drops.</td>
-          <td>Pull the card away mid-write (test anti-tear). Turn off the router mid-sync (test idempotency). The ledger
-            must remain perfectly accurate.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2 id="glossary">Glossary</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Term</th>
-          <th>Definition</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>MIFARE Ultralight / Classic 1K</td>
-          <td>Cost-effective NFC smart cards used by FizMaa. They use software-layer HMAC signing and a two-field
-            write-verify protocol since they lack hardware AES and torn-write rollback.</td>
-        </tr>
-        <tr>
-          <td>EAS Build</td>
-          <td>Expo Application Services Build — Expo's cloud build service. Required for any React Native app that uses
-            native modules (NFC, camera, Bluetooth).</td>
-        </tr>
-        <tr>
-          <td>OTA Update</td>
-          <td>Over-The-Air update — a mechanism to update only the JavaScript bundle of an Expo app without a full app
-            store release. Cannot update native code.</td>
-        </tr>
-        <tr>
-          <td>Idempotency</td>
-          <td>A property of an API endpoint: calling it multiple times with the same input produces the same result.
-            Critical for sync retry safety.</td>
-        </tr>
-        <tr>
-          <td>Celery</td>
-          <td>A distributed task queue for Python. Used to run background jobs asynchronously (sync processing, report
-            generation, settlement).</td>
-        </tr>
-        <tr>
-          <td>Alembic</td>
-          <td>A database migration tool for SQLAlchemy. Tracks schema changes as version-controlled migration scripts.
-          </td>
-        </tr>
-        <tr>
-          <td><code>txn_counter</code></td>
-          <td>An incrementing integer stored on the NFC card. Used by the server to reconstruct chronological
-            transaction order when out-of-sequence syncs arrive.</td>
-        </tr>
-        <tr>
-          <td>Velocity anomaly</td>
-          <td>When a vendor's average transaction value in an offline batch exceeds 3&times; their historical online
-            average — a potential fraud signal.</td>
-        </tr>
-        <tr>
-          <td>VPC</td>
-          <td>Virtual Private Cloud — a logically isolated network on AWS. All backend services (PostgreSQL, Redis,
-            Celery) run inside the VPC, invisible to the public internet.</td>
-        </tr>
-        <tr>
-          <td>SSL Pinning</td>
-          <td>A mobile security technique where the app's expected server certificate hash is hardcoded at build time.
-            Prevents man-in-the-middle interception.</td>
-        </tr>
-        <tr>
-          <td>Blue-green deploy</td>
-          <td>A deployment strategy where a new version runs alongside the old one. Traffic switches only after the new
-            version passes a health check.</td>
-        </tr>
-        <tr>
-          <td>Visual Handshake</td>
-          <td>The full-screen confirmation screen shown on the POS App before NFC is activated. Attendee sees the exact
-            deduction amount before tapping their card.</td>
-        </tr>
-        <tr>
-          <td>Card freeze</td>
-          <td>Admin/supervisor action that marks a card UID as blocked on the server. Online terminals refuse the card
-            immediately; offline terminals pick up the block flag on the next tap.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2 id="database">12. Database Documentation</h2>
-    <p>PostgreSQL schema reference for the FizMaa Cashless NFC payment ecosystem · All tables, columns, relationships,
-      and design decisions explained.</p>
-
-    <h3 id="db-overview">12.1 Overview</h3>
-    <p>FizMaa uses a single PostgreSQL database shared across all three apps (Companion, POS, Admin Panel). The database
-      is the <strong>only authoritative source of truth for server-side balances</strong>. The physical NFC card is the
-      source of truth for balance in offline mode &mdash; the two stay in sync through the transaction counter
-      reconciliation system.</p>
-    <p>The schema is managed with <strong>SQLAlchemy</strong> (async ORM) and <strong>Alembic</strong> (migration
-      scripts). Every structural change to the database is version-controlled as an Alembic migration file.</p>
-
-    <h4>Database Design Principles</h4>
+    <h2 id="timeline">11. Timeline & Milestones (4-Week Production Sprint)</h2>
     <ul>
-      <li><strong>ACID compliance is non-negotiable.</strong> Every rupee movement is wrapped in a database transaction
-        with proper rollback on failure. No money can be created or destroyed by a partial failure.</li>
-      <li><strong>Soft deletes everywhere.</strong> No row is ever <code>DELETE</code>d. Cards, stalls, users, and
-        events are marked <code>is_active = false</code> or given a <code>status</code> field. This preserves the audit
-        trail.</li>
-      <li><strong>Immutable transaction ledger.</strong> Rows in the <code>transactions</code> table are never updated
-        or deleted after they are written. Refunds and corrections are new rows, not edits.</li>
-      <li><strong>All monetary amounts stored as integers (paise).</strong> <code>₹150.00</code> is stored as
-        <code>15000</code>. This eliminates floating-point rounding errors entirely.</li>
-      <li><strong>All timestamps in UTC.</strong> Stored as <code>TIMESTAMPTZ</code> (timestamp with time zone). The
-        application layer handles display conversion.</li>
+      <li><strong>Week 1 (Core Cloud & Auth):</strong> Setup Neon Postgres, SQLAlchemy models, JWT role authentication, and Razorpay webhook verification endpoints.</li>
+      <li><strong>Week 2 (Hardware Spike & Edge Server):</strong> Build dockerized Local Edge Server. Benchmark NTAG216 read speeds across 5 Android devices. Build Android POS checkout keypad and Visual Handshake UI.</li>
+      <li><strong>Week 3 (Companion App & Dashboard):</strong> Build Next.js Admin live revenue graphs, TanStack tables, and Companion App card-linking and dispute logging screens.</li>
+      <li><strong>Week 4 (Chaos Testing & Deployment):</strong> Simulate Wi-Fi router disconnects during active POS checkout loops. Verify Edge Server batch sync recovery. Deploy AWS cloud production containers.</li>
     </ul>
 
-    <h4>Entity Relationship Summary</h4>
-    <pre><code>events
-  └── stalls (many per event)
-        └── stall_staff (many staff per stall)
+    <h2 id="database">12. Database Reference</h2>
+    <p>The system utilizes an immutable, ACID-compliant relational schema. To support Phase 1 architectural upgrades, the database explicitly models read-only identity tokens, multi-source transaction logging, and local edge server synchronization batches.</p>
 
-users
-  └── cards (one active card per user, historically many)
-        └── transactions (many per card)
-              └── refunds (one refund request per transaction)
-
-users
-  └── topups (many per user)
-        └── (triggers card balance write via Celery)
-
-users
-  └── ai_chat_sessions (many per user)
-        └── ai_chat_messages (many per session)
-
-events
-  └── settlement_reports (one per event)
-        └── stall_payouts (one per stall per report)</code></pre>
+    <h3 id="db-overview">12.1 Design Principles</h3>
+    <ul>
+      <li><strong>Integer Monetary Accounting:</strong> All balances, amounts, and refunds are stored strictly as integers in **paise** (e.g., ₹150.00 = `15000`). Floating-point types are strictly forbidden.</li>
+      <li><strong>Universal Soft Deletes:</strong> Records are never deleted via SQL `DELETE`. Entities use `is_active = false` or explicit status enums (`lost`, `revoked`) to maintain complete audit traceability.</li>
+      <li><strong>Immutable Ledger:</strong> The `transactions` table is append-only. Financial adjustments or refunds are inserted as new credit/debit rows, never modified in place.</li>
+    </ul>
 
     <h3 id="db-tables">12.2 Table Reference</h3>
 
     <h4><code>users</code></h4>
-    <p>Stores every person who interacts with the system &mdash; attendees, booth staff, supervisors, admins, and
-      accountants. A single <code>role</code> column determines what they can do. Role enforcement is applied at the API
-      level using JWT claims derived from this field.</p>
+    <p>Central identity table for all system actors. Access permissions are dynamically enforced at the API routing layer via JWT role claims.</p>
     <table>
       <thead>
         <tr>
@@ -2030,359 +602,49 @@ events
           <td><code>id</code></td>
           <td><code>UUID</code></td>
           <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key. UUID used instead of serial integer to prevent enumeration attacks.</td>
+          <td>Primary key.</td>
         </tr>
         <tr>
           <td><code>email</code></td>
           <td><code>VARCHAR(255)</code></td>
           <td>UNIQUE, NOT NULL</td>
-          <td>Login identifier. Unique across all roles.</td>
+          <td>Login identifier.</td>
         </tr>
         <tr>
           <td><code>phone</code></td>
           <td><code>VARCHAR(20)</code></td>
           <td>UNIQUE, NULLABLE</td>
-          <td>Optional. Used for SMS notifications and walk-in attendee identification.</td>
-        </tr>
-        <tr>
-          <td><code>name</code></td>
-          <td><code>VARCHAR(255)</code></td>
-          <td>NOT NULL</td>
-          <td>Display name.</td>
+          <td>Used for SMS receipts and walk-in attendee lookup.</td>
         </tr>
         <tr>
           <td><code>password_hash</code></td>
           <td><code>TEXT</code></td>
           <td>NOT NULL</td>
-          <td>Bcrypt hash. Raw password never stored.</td>
+          <td>Bcrypt algorithm hash.</td>
         </tr>
         <tr>
           <td><code>role</code></td>
           <td><code>VARCHAR(20)</code></td>
           <td>NOT NULL, CHECK</td>
-          <td>One of: <code>attendee</code>, <code>booth_staff</code>, <code>supervisor</code>, <code>admin</code>,
-            <code>accountant</code>. Encoded into JWT claims on login.</td>
-        </tr>
-        <tr>
-          <td><code>is_active</code></td>
-          <td><code>BOOLEAN</code></td>
-          <td>NOT NULL, default <code>true</code></td>
-          <td>Soft delete flag. Deactivated users cannot log in.</td>
+          <td>Enum: <code>attendee</code>, <code>booth_staff</code>, <code>supervisor</code>, <code>admin</code>, <code>accountant</code>.</td>
         </tr>
         <tr>
           <td><code>is_anonymous</code></td>
           <td><code>BOOLEAN</code></td>
           <td>NOT NULL, default <code>false</code></td>
-          <td><code>true</code> for walk-in attendees registered without an email. Can be upgraded to a full account via
-            the Companion App.</td>
+          <td><code>true</code> for gate walk-ins. Can be upgraded to a full account via Companion App.</td>
         </tr>
         <tr>
           <td><code>created_at</code></td>
           <td><code>TIMESTAMPTZ</code></td>
           <td>NOT NULL, default <code>now()</code></td>
-          <td>Account creation time.</td>
-        </tr>
-        <tr>
-          <td><code>last_login_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>Updated on every successful login. Used to detect dormant accounts.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Indexes:</strong></p>
-    <ul>
-      <li><code>idx_users_email</code> on <code>(email)</code> &mdash; fast login lookup</li>
-      <li><code>idx_users_role</code> on <code>(role)</code> &mdash; used to list all staff for an event</li>
-    </ul>
-    <p><strong>Notes:</strong> Walk-in attendees who pay cash at the gate get an <code>is_anonymous = true</code>
-      account created automatically by the POS App. If they later download the Companion App and tap their card, the
-      system links their anonymous profile to their real email. Booth staff accounts are created by the admin before the
-      event and assigned to stalls via the <code>stall_staff</code> table.</p>
-
-    <h4><code>refresh_tokens</code></h4>
-    <p>Stores active refresh tokens for JWT authentication. When an access token expires, the client sends its refresh
-      token to get a new pair. The old refresh token is invalidated immediately (rotation pattern), preventing token
-      reuse attacks.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>user_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The user this token belongs to.</td>
-        </tr>
-        <tr>
-          <td><code>token_hash</code></td>
-          <td><code>TEXT</code></td>
-          <td>UNIQUE, NOT NULL</td>
-          <td>SHA-256 hash of the raw token. Raw token only exists in the HTTP response and the client's secure store.
-          </td>
-        </tr>
-        <tr>
-          <td><code>expires_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL</td>
-          <td>Token expiry. Celery Beat purges expired rows nightly.</td>
-        </tr>
-        <tr>
-          <td><code>is_revoked</code></td>
-          <td><code>BOOLEAN</code></td>
-          <td>NOT NULL, default <code>false</code></td>
-          <td>Set to <code>true</code> on use (rotation) or on explicit logout.</td>
-        </tr>
-        <tr>
-          <td><code>created_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>Issuance time.</td>
-        </tr>
-        <tr>
-          <td><code>device_info</code></td>
-          <td><code>TEXT</code></td>
-          <td>NULLABLE</td>
-          <td>Optional. Stores device identifier for the token (e.g. <code>Android 14, Pixel 7</code>). Useful for the
-            device binding feature in Phase 2.</td>
+          <td>Account issuance timestamp in UTC.</td>
         </tr>
       </tbody>
     </table>
 
-    <h4><code>events</code></h4>
-    <p>Represents a single festival or event. All stalls, cards, transactions, and settlement reports are scoped to an
-      event. This is the top-level entity in the schema.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>name</code></td>
-          <td><code>VARCHAR(255)</code></td>
-          <td>NOT NULL</td>
-          <td>Human-readable name, e.g. <code>Sunburn Festival 2026</code>.</td>
-        </tr>
-        <tr>
-          <td><code>slug</code></td>
-          <td><code>VARCHAR(100)</code></td>
-          <td>UNIQUE, NOT NULL</td>
-          <td>URL-safe identifier, e.g. <code>sunburn-2026</code>. Used in API paths.</td>
-        </tr>
-        <tr>
-          <td><code>venue</code></td>
-          <td><code>VARCHAR(255)</code></td>
-          <td>NOT NULL</td>
-          <td>Venue name and city, e.g. <code>Vagator Beach, Goa</code>.</td>
-        </tr>
-        <tr>
-          <td><code>starts_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL</td>
-          <td>Event start time.</td>
-        </tr>
-        <tr>
-          <td><code>ends_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL</td>
-          <td>Event end time. Celery Beat uses this to trigger auto-settlement.</td>
-        </tr>
-        <tr>
-          <td><code>status</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>draft</code></td>
-          <td>One of: <code>draft</code>, <code>active</code>, <code>ended</code>, <code>settled</code>. Controls what
-            operations are permitted.</td>
-        </tr>
-        <tr>
-          <td><code>max_topup_per_card</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL, default <code>500000</code></td>
-          <td>Maximum lifetime top-up allowed per card for this event, in paise. Default ₹5,000.</td>
-        </tr>
-        <tr>
-          <td><code>refund_window_minutes</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL, default <code>30</code></td>
-          <td>Refund requests older than this many minutes are automatically rejected.</td>
-        </tr>
-        <tr>
-          <td><code>velocity_alert_multiplier</code></td>
-          <td><code>NUMERIC(4,2)</code></td>
-          <td>NOT NULL, default <code>3.0</code></td>
-          <td>Offline batch average transaction value above this multiple of online baseline triggers a velocity alert.
-          </td>
-        </tr>
-        <tr>
-          <td><code>organizer_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The admin user who created and owns this event.</td>
-        </tr>
-        <tr>
-          <td><code>created_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>Creation time.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h4><code>stalls</code></h4>
-    <p>Represents a vendor stall operating at an event. Each stall has at least one staff member assigned to it.
-      Revenue, refunds, and payouts are calculated per stall at settlement.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>event_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
-          <td>The event this stall operates at.</td>
-        </tr>
-        <tr>
-          <td><code>name</code></td>
-          <td><code>VARCHAR(255)</code></td>
-          <td>NOT NULL</td>
-          <td>Stall name, e.g. <code>Biryani Bros</code>.</td>
-        </tr>
-        <tr>
-          <td><code>code</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL</td>
-          <td>Short location code, e.g. <code>B04</code>. Printed on the stall's physical sign.</td>
-        </tr>
-        <tr>
-          <td><code>category</code></td>
-          <td><code>VARCHAR(50)</code></td>
-          <td>NOT NULL</td>
-          <td>One of: <code>food</code>, <code>beverages</code>, <code>merch</code>, <code>other</code>. Used for
-            spending insights and settlement grouping.</td>
-        </tr>
-        <tr>
-          <td><code>is_active</code></td>
-          <td><code>BOOLEAN</code></td>
-          <td>NOT NULL, default <code>true</code></td>
-          <td>Soft delete. Deactivated stalls stop appearing in the admin dashboard.</td>
-        </tr>
-        <tr>
-          <td><code>gross_revenue_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL, default <code>0</code></td>
-          <td>Running total of all completed transactions for this stall, in paise. Updated by Celery on each sync
-            batch. Denormalized for fast dashboard queries.</td>
-        </tr>
-        <tr>
-          <td><code>created_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>Creation time.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Indexes:</strong></p>
-    <ul>
-      <li><code>idx_stalls_event_id</code> on <code>(event_id)</code> &mdash; fast stall listing per event</li>
-      <li><code>idx_stalls_event_category</code> on <code>(event_id, category)</code> &mdash; category breakdown queries
-      </li>
-    </ul>
-    <p><strong>Notes:</strong> <code>gross_revenue_paise</code> is a denormalized cache column. It is always
-      re-computable from <code>SUM(transactions.amount_paise) WHERE stall_id = X AND status = 'completed'</code>. It
-      exists to avoid expensive aggregation queries on the hot dashboard path.</p>
-
-    <h4><code>stall_staff</code></h4>
-    <p>Join table assigning users with the <code>booth_staff</code> role to specific stalls. A staff member can work at
-      multiple stalls (though unusual in practice), and a stall can have multiple staff members for shift coverage.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>stall_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>stalls.id</code>, NOT NULL</td>
-          <td>The stall this assignment is for.</td>
-        </tr>
-        <tr>
-          <td><code>user_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The staff member being assigned. Must have <code>role = 'booth_staff'</code>.</td>
-        </tr>
-        <tr>
-          <td><code>assigned_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>When the admin created this assignment.</td>
-        </tr>
-        <tr>
-          <td><code>assigned_by</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The admin user who made the assignment.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Constraints:</strong></p>
-    <ul>
-      <li><code>UNIQUE (stall_id, user_id)</code> &mdash; prevents duplicate assignments</li>
-    </ul>
-    <p><strong>Notes:</strong> The <code>stall_id</code> assigned to a staff member is encoded in their JWT at login
-      time. The POS App reads this from the token to know which stall to attribute transactions to. This means if a
-      staff member moves stalls mid-event, they must log out and log back in to get a new token.</p>
-
-    <h4><code>cards</code></h4>
-    <p>Represents a physical MIFARE NFC card issued to an attendee. The <code>card_uid</code> is the permanent,
-      unalterable hardware identifier read from the chip. The <code>server_balance_paise</code> is the backend's record
-      of what should be on the card &mdash; it is updated on every confirmed transaction and top-up.</p>
+    <h4><code>cards</code> (Updated for Phase 1 Identity Tokens)</h4>
+    <p>Represents physical NTAG216/Ultralight wristbands. The chip stores no balance; this table acts as the authoritative cloud ledger for the card's funds and security status.</p>
     <table>
       <thead>
         <tr>
@@ -2403,107 +665,55 @@ events
           <td><code>card_uid</code></td>
           <td><code>VARCHAR(50)</code></td>
           <td>UNIQUE, NOT NULL</td>
-          <td>The hardware UID of the NFC card, e.g. <code>A8:F2:3D:91:C6:B4</code>. Set once, never changed.</td>
+          <td>7-byte hardware UID read from chip silicon (e.g., <code>04:62:8A:2A:c8:60:80</code>).</td>
+        </tr>
+        <tr>
+          <td><code>card_public_id</code></td>
+          <td><code>VARCHAR(30)</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td>Human-readable serial printed on wristband surface (e.g., <code>FZ-8821</code>).</td>
+        </tr>
+        <tr>
+          <td><code>card_token_hash</code></td>
+          <td><code>TEXT</code></td>
+          <td>NOT NULL</td>
+          <td>SHA-256 hash stored on chip memory to verify official event batch authenticity.</td>
+        </tr>
+        <tr>
+          <td><code>card_qr_code</code></td>
+          <td><code>TEXT</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td>Payload of physical QR code printed on card surface for camera scan fallback.</td>
         </tr>
         <tr>
           <td><code>event_id</code></td>
           <td><code>UUID</code></td>
           <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
-          <td>The event this card was issued for. Cards are event-scoped.</td>
+          <td>Event scoping reference.</td>
         </tr>
         <tr>
-          <td><code>user_id</code></td>
+          <td><code>linked_user_id</code></td>
           <td><code>UUID</code></td>
           <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
-          <td>The attendee this card is linked to. <code>NULL</code> for unprovisioned cards that have been written but
-            not yet linked to a Companion App account.</td>
+          <td>Attendee owner. <code>NULL</code> for unassigned walk-in inventory.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>active</code></td>
-          <td>One of: <code>active</code>, <code>blocked</code>, <code>replaced</code>, <code>expired</code>.</td>
+          <td>NOT NULL, default <code>unlinked</code></td>
+          <td>Enum: <code>unlinked</code>, <code>active</code>, <code>blocked</code>, <code>lost</code>, <code>replaced</code>, <code>expired</code>.</td>
         </tr>
         <tr>
           <td><code>server_balance_paise</code></td>
           <td><code>INTEGER</code></td>
           <td>NOT NULL, default <code>0</code></td>
-          <td>Backend's record of the card balance, in paise. Must stay in sync with the on-card balance through the
-            reconciliation system.</td>
-        </tr>
-        <tr>
-          <td><code>txn_counter</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL, default <code>0</code></td>
-          <td>The last known on-card transaction counter value. Updated every time a transaction for this card is
-            reconciled. Used to detect missed syncs.</td>
-        </tr>
-        <tr>
-          <td><code>card_type</code></td>
-          <td><code>VARCHAR(30)</code></td>
-          <td>NOT NULL, default <code>mifare_ultralight</code></td>
-          <td>One of: <code>mifare_ultralight</code>, <code>mifare_classic_1k</code>. Determines which read/write
-            protocol the POS App uses.</td>
-        </tr>
-        <tr>
-          <td><code>tier</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>general</code></td>
-          <td>One of: <code>general</code>, <code>gold</code>, <code>platinum</code>, <code>vip</code>. Stored
-            server-side since it cannot fit on Ultralight cards. Used by online POS terminals to apply tier-based
-            discounts.</td>
-        </tr>
-        <tr>
-          <td><code>issued_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>When the card was provisioned at the gate.</td>
-        </tr>
-        <tr>
-          <td><code>linked_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When the attendee linked the card to their Companion App account. <code>NULL</code> for walk-in attendees
-            who never downloaded the app.</td>
-        </tr>
-        <tr>
-          <td><code>blocked_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>Timestamp of the block action. Populated when <code>status</code> becomes <code>blocked</code>.</td>
-        </tr>
-        <tr>
-          <td><code>blocked_by</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
-          <td>The admin or supervisor who blocked the card.</td>
-        </tr>
-        <tr>
-          <td><code>replaced_by_card_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>cards.id</code>, NULLABLE</td>
-          <td>If this card was replaced (lost card flow), this points to the new card. Preserves the audit chain.</td>
+          <td><strong>The Authoritative Wallet Balance.</strong> Updated atomically on payments and top-ups.</td>
         </tr>
       </tbody>
     </table>
-    <p><strong>Indexes:</strong></p>
-    <ul>
-      <li><code>idx_cards_card_uid</code> on <code>(card_uid)</code> &mdash; the most common lookup (every POS read and
-        attendee balance check)</li>
-      <li><code>idx_cards_user_id</code> on <code>(user_id)</code> &mdash; attendee's card history</li>
-      <li><code>idx_cards_event_id_status</code> on <code>(event_id, status)</code> &mdash; admin card management view
-      </li>
-    </ul>
-    <p><strong>Notes:</strong> A user can have multiple cards in history (e.g. after a lost card replacement), but only
-      one should be <code>status = 'active'</code> per event at any time. This is enforced at the application layer, not
-      with a unique constraint, to allow for the brief window during a card replacement where both old and new cards may
-      be technically active. <code>server_balance_paise</code> is the reconciled balance after all synced transactions
-      are applied. During an offline period, the on-card balance and the server balance will diverge. The reconciliation
-      Celery task brings them back in sync after the POS App reconnects.</p>
 
-    <h4><code>transactions</code></h4>
-    <p>The core financial ledger. Every debit (payment at a stall), credit (top-up write-back), and refund credit is
-      recorded here as an immutable row. <strong>Rows in this table are never updated or deleted.</strong></p>
+    <h4><code>transactions</code> (Updated with Edge & Staff Accountability)</h4>
+    <p>Immutable ledger recording every individual financial debit or credit across cloud and edge servers.</p>
     <table>
       <thead>
         <tr>
@@ -2518,133 +728,79 @@ events
           <td><code>id</code></td>
           <td><code>UUID</code></td>
           <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key (server-generated).</td>
+          <td>Primary key.</td>
         </tr>
         <tr>
           <td><code>txn_id</code></td>
           <td><code>UUID</code></td>
           <td>UNIQUE, NOT NULL</td>
-          <td><strong>The idempotency key.</strong> Generated by the POS App at the moment of writing to SQLite on the
-            device, before any network communication. Used to deduplicate sync batches.</td>
+          <td><strong>Idempotency Key.</strong> Generated on POS terminal before network dispatch.</td>
         </tr>
         <tr>
           <td><code>card_id</code></td>
           <td><code>UUID</code></td>
           <td>FK &rarr; <code>cards.id</code>, NOT NULL</td>
-          <td>The card this transaction is against.</td>
+          <td>Debited or credited wristband.</td>
         </tr>
         <tr>
           <td><code>stall_id</code></td>
           <td><code>UUID</code></td>
           <td>FK &rarr; <code>stalls.id</code>, NULLABLE</td>
-          <td>The stall that charged the card. <code>NULL</code> for top-up credits and system adjustments.</td>
+          <td>Vendor location. <code>NULL</code> for online Razorpay top-ups.</td>
         </tr>
         <tr>
-          <td><code>event_id</code></td>
+          <td><code>staff_id</code></td>
           <td><code>UUID</code></td>
-          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
-          <td>Denormalized for fast event-scoped queries without joins.</td>
+          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
+          <td>Specific booth staff member who initiated the charge.</td>
         </tr>
         <tr>
-          <td><code>type</code></td>
-          <td><code>VARCHAR(20)</code></td>
+          <td><code>device_id</code></td>
+          <td><code>VARCHAR(100)</code></td>
           <td>NOT NULL</td>
-          <td>One of: <code>payment</code>, <code>topup_credit</code>, <code>refund_credit</code>,
-            <code>adjustment</code>.</td>
+          <td>Android Device ID or MAC address of the POS terminal.</td>
         </tr>
         <tr>
           <td><code>amount_paise</code></td>
           <td><code>INTEGER</code></td>
           <td>NOT NULL</td>
-          <td>Transaction amount in paise. Always positive. The <code>type</code> field determines whether this is a
-            debit or credit.</td>
+          <td>Absolute transaction value in paise.</td>
         </tr>
         <tr>
           <td><code>balance_before_paise</code></td>
           <td><code>INTEGER</code></td>
           <td>NOT NULL</td>
-          <td>Server balance on the card immediately before this transaction. Used to reconstruct balance history and
-            for dispute resolution.</td>
+          <td>Wallet balance immediately preceding transaction execution.</td>
         </tr>
         <tr>
           <td><code>balance_after_paise</code></td>
           <td><code>INTEGER</code></td>
           <td>NOT NULL</td>
-          <td>Server balance on the card immediately after this transaction.</td>
+          <td>Wallet balance immediately following transaction execution.</td>
+        </tr>
+        <tr>
+          <td><code>source</code></td>
+          <td><code>VARCHAR(25)</code></td>
+          <td>NOT NULL</td>
+          <td>Enum: <code>cloud</code>, <code>local_server</code>, <code>emergency_offline</code>. Identifies execution node.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>pending</code></td>
-          <td>One of: <code>pending</code> (in SQLite queue, not yet synced), <code>synced</code> (received by server,
-            awaiting reconciliation), <code>completed</code> (reconciled and applied to the ledger), <code>failed</code>
-            (reconciliation error).</td>
-        </tr>
-        <tr>
-          <td><code>txn_counter_on_card</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>The value of the card's <code>txn_counter</code> at the time of this transaction. Used by the
-            reconciliation engine to order transactions correctly.</td>
-        </tr>
-        <tr>
-          <td><code>nonce</code></td>
-          <td><code>VARCHAR(50)</code></td>
-          <td>NOT NULL</td>
-          <td>The <code>last_txn_nonce</code> value written to the card for this transaction. Stored for audit purposes.
-          </td>
-        </tr>
-        <tr>
-          <td><code>device_id</code></td>
-          <td><code>VARCHAR(100)</code></td>
-          <td>NULLABLE</td>
-          <td>The Android or iOS device ID of the POS terminal that processed this transaction. Useful for fraud
-            investigation.</td>
-        </tr>
-        <tr>
-          <td><code>synced_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When the POS App sent this transaction to the server. <code>NULL</code> while still in the device's SQLite
-            queue.</td>
-        </tr>
-        <tr>
-          <td><code>reconciled_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When the Celery reconciliation task applied this transaction to the ledger.</td>
+          <td>NOT NULL, default <code>completed</code></td>
+          <td>Enum: <code>pending_sync</code>, <code>completed</code>, <code>flagged_anomaly</code>, <code>rejected</code>.</td>
         </tr>
         <tr>
           <td><code>created_at</code></td>
           <td><code>TIMESTAMPTZ</code></td>
           <td>NOT NULL, default <code>now()</code></td>
-          <td>When the transaction was created on the device (moment of NFC write).</td>
+          <td>Exact UTC timestamp of POS tap execution.</td>
         </tr>
       </tbody>
     </table>
-    <p><strong>Indexes:</strong></p>
-    <ul>
-      <li><code>idx_txn_txn_id</code> on <code>(txn_id)</code> &mdash; idempotency check on every sync batch (most
-        critical index)</li>
-      <li><code>idx_txn_card_id</code> on <code>(card_id)</code> &mdash; attendee transaction history</li>
-      <li><code>idx_txn_stall_id_event_id</code> on <code>(stall_id, event_id)</code> &mdash; stall audit view</li>
-      <li><code>idx_txn_event_id_status</code> on <code>(event_id, status)</code> &mdash; dashboard aggregations</li>
-      <li><code>idx_txn_created_at</code> on <code>(created_at DESC)</code> &mdash; chronological listing</li>
-    </ul>
-    <p><strong>Notes:</strong> The combination of <code>txn_counter_on_card</code> and <code>card_id</code> is what the
-      reconciliation engine uses to order payments. If three transactions arrive with counters <code>5</code>,
-      <code>7</code>, <code>6</code>, the engine re-sorts them to <code>5</code>, <code>6</code>, <code>7</code> and
-      applies them in that order. If counter <code>6</code> never arrives (a missing sync), the engine puts transactions
-      <code>7+</code> in a <code>pending_reconciliation</code> state until <code>6</code> arrives or an admin manually
-      resolves the gap. <code>balance_before_paise</code> and <code>balance_after_paise</code> are denormalized at write
-      time and never recomputed. They create a verifiable chain: <code>balance_after</code> of transaction N should
-      equal <code>balance_before</code> of transaction N+1 for the same card.</p>
 
-    <h4><code>topups</code></h4>
-    <p>Tracks every Razorpay payment initiated by an attendee through the Companion App. This table is separate from
-      <code>transactions</code> because a top-up involves two steps: the Razorpay payment (online) and the physical card
-      balance write (requires a Top-Up terminal tap). The <code>transactions</code> row is created only after the card
-      write is confirmed.</p>
+    <h4><code>local_event_servers</code> (New Phase 1 Table)</h4>
+    <p>Registers physical edge server laptops/mini-PCs deployed at venue food courts for local Wi-Fi checkout processing.</p>
     <table>
       <thead>
         <tr>
@@ -2662,736 +818,126 @@ events
           <td>Primary key.</td>
         </tr>
         <tr>
-          <td><code>user_id</code></td>
+          <td><code>event_id</code></td>
           <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The attendee who initiated the top-up.</td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>Parent event.</td>
         </tr>
         <tr>
-          <td><code>card_id</code></td>
+          <td><code>device_name</code></td>
+          <td><code>VARCHAR(100)</code></td>
+          <td>NOT NULL</td>
+          <td>Hardware identifier (e.g., <code>Main-Stage-Server-01</code>).</td>
+        </tr>
+        <tr>
+          <td><code>sync_status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>online</code></td>
+          <td>Enum: <code>online</code>, <code>lagging</code>, <code>disconnected</code>. Updated by background heartbeats.</td>
+        </tr>
+        <tr>
+          <td><code>last_synced_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>Timestamp of most recent successful batch upload to AWS cloud.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4><code>sync_batches</code> (New Phase 1 Table)</h4>
+    <p>Audit log of asynchronous transaction batches pushed from Local Edge Servers up to the AWS Cloud database.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
           <td><code>UUID</code></td>
-          <td>FK &rarr; <code>cards.id</code>, NOT NULL</td>
-          <td>The card to be credited.</td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
         </tr>
         <tr>
           <td><code>event_id</code></td>
           <td><code>UUID</code></td>
           <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
-          <td>The event context.</td>
+          <td>Parent event.</td>
         </tr>
         <tr>
-          <td><code>amount_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>Amount paid, in paise.</td>
+          <td><code>local_server_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>local_event_servers.id</code></td>
+          <td>Originating edge node.</td>
         </tr>
         <tr>
-          <td><code>razorpay_order_id</code></td>
+          <td><code>batch_id</code></td>
           <td><code>VARCHAR(100)</code></td>
           <td>UNIQUE, NOT NULL</td>
-          <td>The order ID returned by <code>POST /topups/initiate</code>. Sent to the Razorpay SDK on the client.</td>
-        </tr>
-        <tr>
-          <td><code>razorpay_payment_id</code></td>
-          <td><code>VARCHAR(100)</code></td>
-          <td>UNIQUE, NULLABLE</td>
-          <td>Populated by the Razorpay webhook after successful payment.</td>
-        </tr>
-        <tr>
-          <td><code>razorpay_signature</code></td>
-          <td><code>TEXT</code></td>
-          <td>NULLABLE</td>
-          <td>HMAC signature from Razorpay. Verified server-side before crediting the card. Stored for audit.</td>
-        </tr>
-        <tr>
-          <td><code>status</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>initiated</code></td>
-          <td>One of: <code>initiated</code>, <code>paid</code>, <code>write_pending</code>,
-            <code>write_completed</code>, <code>failed</code>, <code>expired</code>.</td>
-        </tr>
-        <tr>
-          <td><code>write_transaction_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>transactions.id</code>, NULLABLE</td>
-          <td>The <code>transactions</code> row created when the card write is confirmed at a Top-Up terminal.</td>
-        </tr>
-        <tr>
-          <td><code>expires_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL</td>
-          <td>Razorpay order expiry (typically 15 minutes). Celery Beat marks unpaid orders as <code>expired</code>.
-          </td>
-        </tr>
-        <tr>
-          <td><code>created_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>When the attendee tapped "Pay".</td>
-        </tr>
-        <tr>
-          <td><code>paid_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When Razorpay confirmed payment (webhook receipt time).</td>
-        </tr>
-        <tr>
-          <td><code>write_completed_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When the card write was confirmed by the Top-Up terminal.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Status flow:</strong></p>
-    <pre><code>initiated &rarr; paid (webhook) &rarr; write_pending (Celery task queued) &rarr; write_completed (terminal taps card) &rarr; done
-                           &searr; failed (webhook reports failure)
-initiated &rarr; expired (Celery Beat, after expires_at)</code></pre>
-
-    <h4><code>refunds</code></h4>
-    <p>Tracks refund requests raised by attendees (via Companion App) or flagged by booth staff (via POS App). A refund
-      does not modify any existing <code>transactions</code> row. On approval, a new <code>transactions</code> row of
-      type <code>refund_credit</code> is created and the card balance is credited.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>transaction_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>transactions.id</code>, NOT NULL</td>
-          <td>The original payment transaction being disputed. One refund request per transaction.</td>
-        </tr>
-        <tr>
-          <td><code>card_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>cards.id</code>, NOT NULL</td>
-          <td>Denormalized for fast card-level refund history.</td>
-        </tr>
-        <tr>
-          <td><code>event_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
-          <td>Denormalized for event-scoped refund queue.</td>
-        </tr>
-        <tr>
-          <td><code>raised_by</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The user who raised the request &mdash; either the attendee or the booth staff member.</td>
-        </tr>
-        <tr>
-          <td><code>raised_by_role</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL</td>
-          <td>One of: <code>attendee</code>, <code>booth_staff</code>. Determines which app surface raised the request.
-          </td>
-        </tr>
-        <tr>
-          <td><code>reason</code></td>
-          <td><code>TEXT</code></td>
-          <td>NOT NULL</td>
-          <td>The reason provided by the attendee or staff. Shown to the supervisor in the approval queue.</td>
-        </tr>
-        <tr>
-          <td><code>amount_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>The refund amount requested. May be less than the original transaction amount (partial refunds).</td>
-        </tr>
-        <tr>
-          <td><code>status</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>pending</code></td>
-          <td>One of: <code>pending</code>, <code>approved</code>, <code>rejected</code>, <code>write_completed</code>.
-          </td>
-        </tr>
-        <tr>
-          <td><code>reviewed_by</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
-          <td>The supervisor who approved or rejected this request.</td>
-        </tr>
-        <tr>
-          <td><code>review_note</code></td>
-          <td><code>TEXT</code></td>
-          <td>NULLABLE</td>
-          <td>Optional note from the supervisor explaining the decision.</td>
-        </tr>
-        <tr>
-          <td><code>reviewed_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When the supervisor acted on the request.</td>
-        </tr>
-        <tr>
-          <td><code>credit_transaction_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>transactions.id</code>, NULLABLE</td>
-          <td>The <code>transactions</code> row of type <code>refund_credit</code> created when the supervisor approves.
-          </td>
-        </tr>
-        <tr>
-          <td><code>write_completed_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When the refund balance was physically written back to the card at a terminal.</td>
-        </tr>
-        <tr>
-          <td><code>created_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>When the request was raised.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Constraints:</strong></p>
-    <ul>
-      <li><code>UNIQUE (transaction_id)</code> &mdash; one refund request per original transaction</li>
-    </ul>
-
-    <h4><code>velocity_alerts</code></h4>
-    <p>Records automatically generated alerts when a stall's offline sync batch shows suspicious transaction patterns.
-      These are surfaced in the Admin Panel for manual review. Flagged stalls have their payouts frozen until an admin
-      explicitly approves or rejects.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>stall_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>stalls.id</code>, NOT NULL</td>
-          <td>The flagged stall.</td>
-        </tr>
-        <tr>
-          <td><code>event_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
-          <td>The event.</td>
-        </tr>
-        <tr>
-          <td><code>trigger_type</code></td>
-          <td><code>VARCHAR(50)</code></td>
-          <td>NOT NULL</td>
-          <td>One of: <code>high_avg_txn_value</code>, <code>rapid_sequence</code>, <code>card_not_seen_online</code>.
-            Describes what pattern triggered the alert.</td>
-        </tr>
-        <tr>
-          <td><code>online_avg_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>The stall's average transaction value during online periods, in paise. The baseline.</td>
-        </tr>
-        <tr>
-          <td><code>offline_avg_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>The stall's average transaction value in the suspicious offline batch, in paise.</td>
-        </tr>
-        <tr>
-          <td><code>multiplier</code></td>
-          <td><code>NUMERIC(6,2)</code></td>
-          <td>NOT NULL</td>
-          <td><code>offline_avg / online_avg</code>. Alerts fire when this exceeds
-            <code>events.velocity_alert_multiplier</code>.</td>
+          <td>Idempotent UUID generated by edge server before upload attempt.</td>
         </tr>
         <tr>
           <td><code>transaction_count</code></td>
           <td><code>INTEGER</code></td>
           <td>NOT NULL</td>
-          <td>Number of transactions in the suspicious batch.</td>
-        </tr>
-        <tr>
-          <td><code>payout_frozen</code></td>
-          <td><code>BOOLEAN</code></td>
-          <td>NOT NULL, default <code>true</code></td>
-          <td>Whether this alert has frozen the stall's settlement payout.</td>
+          <td>Number of individual checkouts bundled within this batch payload.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>open</code></td>
-          <td>One of: <code>open</code>, <code>dismissed</code>, <code>escalated</code>, <code>resolved</code>.</td>
+          <td>NOT NULL, default <code>received</code></td>
+          <td>Enum: <code>received</code>, <code>processing</code>, <code>reconciled</code>, <code>failed</code>.</td>
         </tr>
         <tr>
-          <td><code>resolved_by</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
-          <td>The admin who reviewed the alert.</td>
-        </tr>
-        <tr>
-          <td><code>resolution_note</code></td>
-          <td><code>TEXT</code></td>
-          <td>NULLABLE</td>
-          <td>Admin note explaining the resolution.</td>
-        </tr>
-        <tr>
-          <td><code>resolved_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>Resolution timestamp.</td>
-        </tr>
-        <tr>
-          <td><code>created_at</code></td>
+          <td><code>received_at</code></td>
           <td><code>TIMESTAMPTZ</code></td>
           <td>NOT NULL, default <code>now()</code></td>
-          <td>When the Celery sync task generated the alert.</td>
+          <td>Cloud receipt timestamp.</td>
         </tr>
       </tbody>
     </table>
 
-    <h4><code>settlement_reports</code></h4>
-    <p>One report per event per settlement run. Captures the final financial summary after all transactions are
-      reconciled and all refunds are applied. Generated by a Celery task triggered by the admin.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>event_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>events.id</code>, UNIQUE, NOT NULL</td>
-          <td>One settlement per event.</td>
-        </tr>
-        <tr>
-          <td><code>generated_by</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The admin who triggered the settlement.</td>
-        </tr>
-        <tr>
-          <td><code>total_topups_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>Sum of all <code>topups</code> with <code>status = 'write_completed'</code>, in paise.</td>
-        </tr>
-        <tr>
-          <td><code>total_spent_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>Sum of all <code>transactions</code> with <code>type = 'payment'</code> and
-            <code>status = 'completed'</code>, in paise.</td>
-        </tr>
-        <tr>
-          <td><code>total_refunds_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>Sum of all approved refund credits, in paise.</td>
-        </tr>
-        <tr>
-          <td><code>unspent_float_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td><code>total_topups - total_spent + total_refunds</code>. The balance remaining on all cards.</td>
-        </tr>
-        <tr>
-          <td><code>net_payable_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>Total amount to be distributed to stalls: <code>total_spent - total_refunds</code>.</td>
-        </tr>
-        <tr>
-          <td><code>status</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>generated</code></td>
-          <td>One of: <code>generated</code>, <code>payouts_in_progress</code>, <code>completed</code>.</td>
-        </tr>
-        <tr>
-          <td><code>pdf_s3_key</code></td>
-          <td><code>TEXT</code></td>
-          <td>NULLABLE</td>
-          <td>S3 object key for the generated PDF report.</td>
-        </tr>
-        <tr>
-          <td><code>excel_s3_key</code></td>
-          <td><code>TEXT</code></td>
-          <td>NULLABLE</td>
-          <td>S3 object key for the generated Excel report.</td>
-        </tr>
-        <tr>
-          <td><code>generated_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>When the report was generated.</td>
-        </tr>
-        <tr>
-          <td><code>completed_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When all stall payouts were marked complete.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h4><code>stall_payouts</code></h4>
-    <p>One row per stall per settlement report. Records the net amount owed to each vendor after deducting approved
-      refunds. Updated as the admin marks individual payouts as completed.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>settlement_report_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>settlement_reports.id</code>, NOT NULL</td>
-          <td>The parent report.</td>
-        </tr>
-        <tr>
-          <td><code>stall_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>stalls.id</code>, NOT NULL</td>
-          <td>The stall being paid out.</td>
-        </tr>
-        <tr>
-          <td><code>gross_revenue_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td>Total payments processed by this stall (from <code>transactions</code>).</td>
-        </tr>
-        <tr>
-          <td><code>refunds_deducted_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL, default <code>0</code></td>
-          <td>Total approved refunds attributable to this stall.</td>
-        </tr>
-        <tr>
-          <td><code>net_payout_paise</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL</td>
-          <td><code>gross_revenue - refunds_deducted</code>. The amount transferred to the vendor.</td>
-        </tr>
-        <tr>
-          <td><code>payout_status</code></td>
-          <td><code>VARCHAR(20)</code></td>
-          <td>NOT NULL, default <code>pending</code></td>
-          <td>One of: <code>pending</code>, <code>approved</code>, <code>on_hold</code> (velocity alert freeze),
-            <code>completed</code>.</td>
-        </tr>
-        <tr>
-          <td><code>on_hold_reason</code></td>
-          <td><code>TEXT</code></td>
-          <td>NULLABLE</td>
-          <td>Populated when <code>payout_status = 'on_hold'</code>. References the velocity alert.</td>
-        </tr>
-        <tr>
-          <td><code>approved_by</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
-          <td>Admin who approved the payout.</td>
-        </tr>
-        <tr>
-          <td><code>approved_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>Approval timestamp.</td>
-        </tr>
-        <tr>
-          <td><code>completed_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NULLABLE</td>
-          <td>When payment transfer was confirmed.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Constraints:</strong></p>
+    <h3 id="db-relations">12.3 Key Relationships & Indexing Strategy</h3>
     <ul>
-      <li><code>UNIQUE (settlement_report_id, stall_id)</code> &mdash; one payout row per stall per settlement</li>
+      <li><code>idx_cards_uid_hash</code> on <code>(card_uid, card_token_hash)</code> &mdash; Critical composite index guaranteeing sub-5ms identity verification lookups during POS edge scans.</li>
+      <li><code>idx_txn_idempotency</code> on <code>(txn_id)</code> &mdash; Absolute unique constraint preventing double-billing if an edge server retries uploading a `sync_batch`.</li>
+      <li><code>idx_txn_edge_reconciliation</code> on <code>(source, status, created_at)</code> &mdash; Enables instant admin dashboard querying for offline anomaly detection and velocity audits.</li>
     </ul>
 
-    <h4><code>ai_chat_sessions</code></h4>
-    <p>Groups AI chatbot messages into sessions for context management. Each session has a TTL maintained in Redis for
-      active conversation history. The full conversation is persisted here in PostgreSQL for audit and support purposes.
-    </p>
+    <h2 id="glossary">Glossary</h2>
     <table>
       <thead>
         <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
+          <th>Term</th>
+          <th>Definition</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key. Also used as the Redis key for the active session context.</td>
+          <td><strong>Identity Token</strong></td>
+          <td>An NFC card design pattern where the chip stores only a read-only cryptographic hash. Balance math is offloaded entirely to database servers, preventing card corruption.</td>
         </tr>
         <tr>
-          <td><code>user_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The attendee this session belongs to.</td>
+          <td><strong>Local Edge Server</strong></td>
+          <td>A venue laptop or mini-PC running dockerized PostgreSQL/FastAPI over local food court Wi-Fi. Guarantees sub-10ms POS checkout speeds even during complete cellular cloud blackouts.</td>
         </tr>
         <tr>
-          <td><code>event_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
-          <td>The event context injected into the Claude system prompt.</td>
+          <td><strong>Torn Write</strong></td>
+          <td>Hardware corruption caused when an NFC tag is pulled away from a reader while memory sectors are actively being modified.</td>
         </tr>
         <tr>
-          <td><code>started_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>Session start time.</td>
-        </tr>
-        <tr>
-          <td><code>last_message_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>Updated on every message. Used to expire idle sessions.</td>
-        </tr>
-        <tr>
-          <td><code>is_active</code></td>
-          <td><code>BOOLEAN</code></td>
-          <td>NOT NULL, default <code>true</code></td>
-          <td>Set to <code>false</code> when the session expires or the user explicitly closes the chat.</td>
-        </tr>
-        <tr>
-          <td><code>message_count</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NOT NULL, default <code>0</code></td>
-          <td>Running count of messages in the session.</td>
+          <td><strong>Visual Handshake</strong></td>
+          <td>The mandatory full-screen confirmation on FizMaa POS showing exact deduction amounts before NFC scanning is activated.</td>
         </tr>
       </tbody>
     </table>
-
-    <h4><code>ai_chat_messages</code></h4>
-    <p>Individual messages in an AI chat session. Stores both the attendee's messages and Claude's responses for audit,
-      support, and future fine-tuning purposes.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>session_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>ai_chat_sessions.id</code>, NOT NULL</td>
-          <td>The parent session.</td>
-        </tr>
-        <tr>
-          <td><code>role</code></td>
-          <td><code>VARCHAR(10)</code></td>
-          <td>NOT NULL</td>
-          <td>One of: <code>user</code> (attendee message), <code>assistant</code> (Claude response). Maps directly to
-            the Anthropic API message format.</td>
-        </tr>
-        <tr>
-          <td><code>content</code></td>
-          <td><code>TEXT</code></td>
-          <td>NOT NULL</td>
-          <td>The message text.</td>
-        </tr>
-        <tr>
-          <td><code>context_snapshot</code></td>
-          <td><code>JSONB</code></td>
-          <td>NULLABLE</td>
-          <td>The event context injected into the system prompt for this message (balance, recent transactions). Stored
-            for debugging prompt quality. Only on <code>role = 'user'</code> rows.</td>
-        </tr>
-        <tr>
-          <td><code>created_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>Message timestamp.</td>
-        </tr>
-        <tr>
-          <td><code>latency_ms</code></td>
-          <td><code>INTEGER</code></td>
-          <td>NULLABLE</td>
-          <td>Claude API response latency in milliseconds. Populated on <code>role = 'assistant'</code> rows. Useful for
-            monitoring.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Indexes:</strong></p>
-    <ul>
-      <li><code>idx_chat_messages_session_id</code> on <code>(session_id, created_at)</code> &mdash; fast session
-        history retrieval</li>
-    </ul>
-
-    <h4><code>device_registrations</code></h4>
-    <p><em>(Phase 2)</em> Stores registered POS devices. Once a staff member logs in from a device for the first time,
-      the device is registered. Subsequent logins from unregistered devices are rejected. This is the device binding
-      feature that prevents stolen credentials from being used on a different phone.</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Column</th>
-          <th>Type</th>
-          <th>Constraints</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>UUID</code></td>
-          <td>PK, default <code>gen_random_uuid()</code></td>
-          <td>Primary key.</td>
-        </tr>
-        <tr>
-          <td><code>user_id</code></td>
-          <td><code>UUID</code></td>
-          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
-          <td>The <code>booth_staff</code> user this device is registered to.</td>
-        </tr>
-        <tr>
-          <td><code>device_identifier</code></td>
-          <td><code>VARCHAR(255)</code></td>
-          <td>NOT NULL</td>
-          <td>Android ID or iOS device UUID.</td>
-        </tr>
-        <tr>
-          <td><code>device_name</code></td>
-          <td><code>VARCHAR(255)</code></td>
-          <td>NULLABLE</td>
-          <td>Human-readable device name, e.g. <code>Samsung Galaxy A54</code>.</td>
-        </tr>
-        <tr>
-          <td><code>is_active</code></td>
-          <td><code>BOOLEAN</code></td>
-          <td>NOT NULL, default <code>true</code></td>
-          <td>Set to <code>false</code> to deregister a device (e.g. if a staff member loses their phone).</td>
-        </tr>
-        <tr>
-          <td><code>registered_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>First login timestamp.</td>
-        </tr>
-        <tr>
-          <td><code>last_seen_at</code></td>
-          <td><code>TIMESTAMPTZ</code></td>
-          <td>NOT NULL, default <code>now()</code></td>
-          <td>Updated on every successful authenticated request from this device.</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><strong>Constraints:</strong></p>
-    <ul>
-      <li><code>UNIQUE (user_id, device_identifier)</code> &mdash; one registration entry per user per device</li>
-    </ul>
-
-    <h3 id="db-relations">12.3 Key Relationships Explained</h3>
-
-    <h4>Card &harr; User (Many-to-One, with history)</h4>
-    <p>A <code>user</code> can have many <code>cards</code> over time (one card per event, or a replacement card after
-      loss). But at any given point, only one card should be <code>status = 'active'</code> per event per user. The
-      <code>user_id</code> on <code>cards</code> may be <code>NULL</code> for unprovisioned walk-in cards that have been
-      written but not yet claimed through the Companion App.</p>
-
-    <h4>Transaction &harr; Card (Many-to-One, immutable)</h4>
-    <p>Every <code>transaction</code> is permanently associated with a <code>card</code> at creation time. Transactions
-      cannot be reassigned to a different card. The <code>balance_before_paise</code> and
-      <code>balance_after_paise</code> columns form a verifiable chain of custody for every rupee on the card.</p>
-
-    <h4>Transaction idempotency (txn_id)</h4>
-    <p>The <code>txn_id</code> column on <code>transactions</code> is generated by the POS App at the exact moment the
-      NFC write succeeds &mdash; before any network call. It is the idempotency key used by
-      <code>POST /sync/batch</code>. The database enforces uniqueness on this column, so even if the same transaction is
-      submitted in 10 different sync batches, only one row is ever written to the ledger.</p>
-
-    <h4>Topup &harr; Transaction (One-to-One, deferred)</h4>
-    <p>A <code>topup</code> row is created when the Razorpay payment is initiated. The linked <code>transaction</code>
-      row (<code>write_transaction_id</code>) is only created later, when the attendee physically taps their card at a
-      Top-Up terminal and the Celery task writes the balance. This two-step structure means a paid-but-not-yet-written
-      top-up has a <code>topup</code> row with <code>status = 'write_pending'</code> but no corresponding
-      <code>transaction</code> row yet.</p>
-
-    <h4>Refund &harr; Transaction (One-to-One request, One-to-One credit)</h4>
-    <p>A refund request (<code>refunds</code> table) references the original <code>transaction</code> being disputed. On
-      approval, a second <code>transactions</code> row of <code>type = 'refund_credit'</code> is created and linked back
-      via <code>refunds.credit_transaction_id</code>. The original transaction is never modified.</p>
-
-    <h3 id="db-alembic">12.4 Alembic Migration Notes</h3>
-    <p>Every schema change ships as an Alembic migration script in <code>backend/alembic/versions/</code>. Migrations
-      run automatically as part of the CI/CD pipeline <strong>before</strong> the new Docker container receives any
-      traffic.</p>
-    <p>Migration naming convention:</p>
-    <pre><code>{timestamp}_{short_description}.py
-# e.g.
-20260615_001_create_users_and_auth_tables.py
-20260620_002_add_cards_and_transactions.py
-20260625_003_add_velocity_alerts.py
-20260628_004_add_ai_chat_tables.py</code></pre>
-    <p>Key rules:</p>
-    <ul>
-      <li>Every migration must have both an <code>upgrade()</code> and a <code>downgrade()</code> function.</li>
-      <li>Never drop a column directly &mdash; add a new column, migrate data, deprecate old column in a subsequent
-        migration.</li>
-      <li>Index creation uses <code>CREATE INDEX CONCURRENTLY</code> in production migrations to avoid table locks.</li>
-      <li>All migrations are tested against the test database in the CI pipeline before any production deploy is
-        permitted.</li>
-    </ul>
-
-    <hr>
-    <p style="text-align: center; color: var(--text-muted); font-size: 13px; font-style: italic;">FizMaa Cashless —
-      Technical Architecture v3.0 · Confidential</p>
 
   </main>
-</body>
+</div>
 
+</body>
 </html>
