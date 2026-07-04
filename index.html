@@ -301,6 +301,13 @@
       <li><a href="#deployment">9. Deployment Process</a></li>
       <li><a href="#phase">10. Phase Rollout Plan</a></li>
       <li><a href="#timeline">11. Timeline and Milestones</a></li>
+      <li><a href="#database">12. Database Documentation</a>
+        <ul class="toc-sublist">
+          <li><a href="#db-overview">Overview</a></li>
+          <li><a href="#db-tables">Table Reference</a></li>
+          <li><a href="#db-relations">Key Relationships</a></li>
+        </ul>
+      </li>
       <li><a href="#glossary">Glossary</a></li>
     </ul>
   </nav>
@@ -427,33 +434,68 @@
     </blockquote>
 
     <h3 id="arch-provisioning">Card Provisioning & Top-Up Process</h3>
-    <p>Because the system uses MIFARE Classic 1K / Ultralight + HMAC Signatures, the provisioning process at the gate is the most important security moment of the entire event. This is where the digital ticket transforms into a physical, cryptographically signed wallet.</p>
+    <p>Because the system uses MIFARE Classic 1K / Ultralight + HMAC Signatures, the provisioning process at the gate is
+      the most important security moment of the entire event. This is where the digital ticket transforms into a
+      physical, cryptographically signed wallet.</p>
 
     <h4>Scenario A: The Pre-Bought Ticket (Gold, Platinum, VIP)</h4>
-    <p>These attendees bought their tickets online days or weeks in advance. Their ticket package might include entry plus a pre-loaded balance (e.g., a "Gold Ticket" includes ₹2,000 to spend at the bar).</p>
+    <p>These attendees bought their tickets online days or weeks in advance. Their ticket package might include entry
+      plus a pre-loaded balance (e.g., a "Gold Ticket" includes ₹2,000 to spend at the bar).</p>
     <ol>
-      <li><strong>Verify the Online Ticket:</strong> Action taken by Gate Staff. The attendee walks up to the registration desk and shows the ticket QR code on their phone. The staff uses the <strong>FizMaa POS App</strong> (set to <em>Registration Mode</em>) to scan the QR code. The app instantly checks the FastAPI backend to ensure the ticket is valid and hasn't been used yet.</li>
-      <li><strong>The Physical Link:</strong> Connecting digital to physical. The POS App sees that this QR code is a "Gold Ticket" that comes with a ₹2,000 pre-loaded balance. The app prompts the staff member to tap a blank card. The staff picks up an unregistered MIFARE Classic 1K or Ultralight card and holds it to the back of their phone.</li>
-      <li><strong>The Cryptographic Write:</strong> Securing the offline wallet. In a fraction of a second, the POS App writes <code>Balance: ₹2,000</code> and <code>Counter: 1</code> to the card. It calculates the <strong>HMAC Signature</strong> combining the card's permanent UID, the balance, and the secret app key, and writes that signature to the card so vendors can verify it offline later.</li>
-      <li><strong>Backend Sync:</strong> Updating the cloud ledger. The POS App tells the FastAPI server: <em>"Ticket QR 9876 is now consumed. It is permanently linked to Card UID 1234, and the starting balance is ₹2,000."</em> The attendee walks into the festival and can start tapping at food stalls immediately.</li>
+      <li><strong>Verify the Online Ticket:</strong> Action taken by Gate Staff. The attendee walks up to the
+        registration desk and shows the ticket QR code on their phone. The staff uses the <strong>FizMaa POS
+          App</strong> (set to <em>Registration Mode</em>) to scan the QR code. The app instantly checks the FastAPI
+        backend to ensure the ticket is valid and hasn't been used yet.</li>
+      <li><strong>The Physical Link:</strong> Connecting digital to physical. The POS App sees that this QR code is a
+        "Gold Ticket" that comes with a ₹2,000 pre-loaded balance. The app prompts the staff member to tap a blank card.
+        The staff picks up an unregistered MIFARE Classic 1K or Ultralight card and holds it to the back of their phone.
+      </li>
+      <li><strong>The Cryptographic Write:</strong> Securing the offline wallet. In a fraction of a second, the POS App
+        writes <code>Balance: ₹2,000</code> and <code>Counter: 1</code> to the card. It calculates the <strong>HMAC
+          Signature</strong> combining the card's permanent UID, the balance, and the secret app key, and writes that
+        signature to the card so vendors can verify it offline later.</li>
+      <li><strong>Backend Sync:</strong> Updating the cloud ledger. The POS App tells the FastAPI server: <em>"Ticket QR
+          9876 is now consumed. It is permanently linked to Card UID 1234, and the starting balance is ₹2,000."</em> The
+        attendee walks into the festival and can start tapping at food stalls immediately.</li>
     </ol>
 
     <h4>Scenario B: The On-the-Spot Walk-In</h4>
-    <p>These attendees show up at the venue with no prior registration. They need to buy a ticket, get a card, and load it with money all at the exact same time.</p>
+    <p>These attendees show up at the venue with no prior registration. They need to buy a ticket, get a card, and load
+      it with money all at the exact same time.</p>
     <ol>
-      <li><strong>Take Payment:</strong> Physical Cash or UPI. The attendee walks up to the Top-Up counter and says, <em>"I need entry, and I want to load ₹1,000."</em> They scan a static UPI QR code taped to the desk or hand physical cash to the staff member.</li>
-      <li><strong>Configure the Top-Up:</strong> Action taken by Gate Staff. Once the staff verifies the UPI ping or puts the cash in the drawer, they open the <strong>FizMaa POS App</strong> (set to <em>Top-Up Mode</em>) and type "₹1,000" into the keypad.</li>
-      <li><strong>The Cryptographic Write:</strong> Creating the wallet. The staff picks up a blank card and taps it to their phone. Just like the pre-bought flow, the app writes the ₹1,000 balance and generates the strict HMAC security signature to lock the data.</li>
-      <li><strong>Anonymous Profile Creation:</strong> Optional later link. The POS App pings the FastAPI backend to create a brand new, anonymous user profile in the database, linked to this specific Card UID with a server balance of ₹1,000. <em>(Optional Upgrade: If the attendee wants to check their balance later, they can download the Companion App, tap the card, and the system will link that anonymous profile to their phone number.)</em></li>
+      <li><strong>Take Payment:</strong> Physical Cash or UPI. The attendee walks up to the Top-Up counter and says,
+        <em>"I need entry, and I want to load ₹1,000."</em> They scan a static UPI QR code taped to the desk or hand
+        physical cash to the staff member.
+      </li>
+      <li><strong>Configure the Top-Up:</strong> Action taken by Gate Staff. Once the staff verifies the UPI ping or
+        puts the cash in the drawer, they open the <strong>FizMaa POS App</strong> (set to <em>Top-Up Mode</em>) and
+        type "₹1,000" into the keypad.</li>
+      <li><strong>The Cryptographic Write:</strong> Creating the wallet. The staff picks up a blank card and taps it to
+        their phone. Just like the pre-bought flow, the app writes the ₹1,000 balance and generates the strict HMAC
+        security signature to lock the data.</li>
+      <li><strong>Anonymous Profile Creation:</strong> Optional later link. The POS App pings the FastAPI backend to
+        create a brand new, anonymous user profile in the database, linked to this specific Card UID with a server
+        balance of ₹1,000. <em>(Optional Upgrade: If the attendee wants to check their balance later, they can download
+          the Companion App, tap the card, and the system will link that anonymous profile to their phone number.)</em>
+      </li>
     </ol>
 
     <h4>⚠️ Crucial Architecture Constraint: Handling "Ticket Types"</h4>
-    <p>Because you are using <strong>MIFARE Ultralight</strong> cards, you only have <strong>48 bytes</strong> of usable space. This creates a hard limitation: <strong>You cannot store the "Ticket Type" (Gold, Platinum, VIP) directly on the physical card.</strong> The space is entirely consumed by the Rupee balance and the HMAC security signature.</p>
-    <p>If a vendor's POS terminal is completely offline, it will have no way of knowing if the card tapping it belongs to a "Platinum" attendee or a general admission attendee.</p>
+    <p>Because you are using <strong>MIFARE Ultralight</strong> cards, you only have <strong>48 bytes</strong> of usable
+      space. This creates a hard limitation: <strong>You cannot store the "Ticket Type" (Gold, Platinum, VIP) directly
+        on the physical card.</strong> The space is entirely consumed by the Rupee balance and the HMAC security
+      signature.</p>
+    <p>If a vendor's POS terminal is completely offline, it will have no way of knowing if the card tapping it belongs
+      to a "Platinum" attendee or a general admission attendee.</p>
     <p><strong>How to solve this (Handle tier privileges physically or hybridly):</strong></p>
     <ul>
-      <li><strong>Physical Visuals:</strong> The easiest operational fix is to use different colored physical cards or wristbands. Give Gold buyers a black Ultralight wristband and General Walk-ins a white one. The security guards check the color for VIP zone access, while the NFC chip strictly handles the money.</li>
-      <li><strong>Online-Only Checks:</strong> If a specific VIP bar offers "20% off for Platinum members," that specific POS terminal must have an active internet connection. When the card taps, the terminal reads the UID, quickly asks the FastAPI server <em>"What tier is this UID?"</em>, and applies the discount before writing the new balance.</li>
+      <li><strong>Physical Visuals:</strong> The easiest operational fix is to use different colored physical cards or
+        wristbands. Give Gold buyers a black Ultralight wristband and General Walk-ins a white one. The security guards
+        check the color for VIP zone access, while the NFC chip strictly handles the money.</li>
+      <li><strong>Online-Only Checks:</strong> If a specific VIP bar offers "20% off for Platinum members," that
+        specific POS terminal must have an active internet connection. When the card taps, the terminal reads the UID,
+        quickly asks the FastAPI server <em>"What tier is this UID?"</em>, and applies the discount before writing the
+        new balance.</li>
     </ul>
 
 
@@ -723,7 +765,10 @@
     </table>
 
     <h4>Native iOS Support Unlocked</h4>
-    <p>By shifting to MIFARE Classic/Ultralight cards, the system bypasses previous iOS restrictions. Apple's CoreNFC framework fully supports reading and writing MIFARE tags out of the box via <code>NFCMiFareTag</code>. This eliminates the need for the 4-6 week Apple Entitlement review, allowing the POS App to be deployed on both Android and iOS devices concurrently from Day 1.</p>
+    <p>By shifting to MIFARE Classic/Ultralight cards, the system bypasses previous iOS restrictions. Apple's CoreNFC
+      framework fully supports reading and writing MIFARE tags out of the box via <code>NFCMiFareTag</code>. This
+      eliminates the need for the 4-6 week Apple Entitlement review, allowing the POS App to be deployed on both Android
+      and iOS devices concurrently from Day 1.</p>
 
     <h4>Payment Flow — Step by Step</h4>
     <ol>
@@ -1731,7 +1776,8 @@
     </table>
 
     <h3>Week 2: The Hardware Spike (July 8 – July 14)</h3>
-    <p><strong>Goal:</strong> The Android & iOS POS App. This is the highest technical risk of the project. If you cannot
+    <p><strong>Goal:</strong> The Android & iOS POS App. This is the highest technical risk of the project. If you
+      cannot
       securely read/write to the NFC card offline, the ecosystem fails.</p>
     <table>
       <thead>
@@ -1914,6 +1960,1432 @@
         </tr>
       </tbody>
     </table>
+
+    <h2 id="database">12. Database Documentation</h2>
+    <p>PostgreSQL schema reference for the FizMaa Cashless NFC payment ecosystem · All tables, columns, relationships,
+      and design decisions explained.</p>
+
+    <h3 id="db-overview">12.1 Overview</h3>
+    <p>FizMaa uses a single PostgreSQL database shared across all three apps (Companion, POS, Admin Panel). The database
+      is the <strong>only authoritative source of truth for server-side balances</strong>. The physical NFC card is the
+      source of truth for balance in offline mode &mdash; the two stay in sync through the transaction counter
+      reconciliation system.</p>
+    <p>The schema is managed with <strong>SQLAlchemy</strong> (async ORM) and <strong>Alembic</strong> (migration
+      scripts). Every structural change to the database is version-controlled as an Alembic migration file.</p>
+
+    <h4>Database Design Principles</h4>
+    <ul>
+      <li><strong>ACID compliance is non-negotiable.</strong> Every rupee movement is wrapped in a database transaction
+        with proper rollback on failure. No money can be created or destroyed by a partial failure.</li>
+      <li><strong>Soft deletes everywhere.</strong> No row is ever <code>DELETE</code>d. Cards, stalls, users, and
+        events are marked <code>is_active = false</code> or given a <code>status</code> field. This preserves the audit
+        trail.</li>
+      <li><strong>Immutable transaction ledger.</strong> Rows in the <code>transactions</code> table are never updated
+        or deleted after they are written. Refunds and corrections are new rows, not edits.</li>
+      <li><strong>All monetary amounts stored as integers (paise).</strong> <code>₹150.00</code> is stored as
+        <code>15000</code>. This eliminates floating-point rounding errors entirely.</li>
+      <li><strong>All timestamps in UTC.</strong> Stored as <code>TIMESTAMPTZ</code> (timestamp with time zone). The
+        application layer handles display conversion.</li>
+    </ul>
+
+    <h4>Entity Relationship Summary</h4>
+    <pre><code>events
+  └── stalls (many per event)
+        └── stall_staff (many staff per stall)
+
+users
+  └── cards (one active card per user, historically many)
+        └── transactions (many per card)
+              └── refunds (one refund request per transaction)
+
+users
+  └── topups (many per user)
+        └── (triggers card balance write via Celery)
+
+users
+  └── ai_chat_sessions (many per user)
+        └── ai_chat_messages (many per session)
+
+events
+  └── settlement_reports (one per event)
+        └── stall_payouts (one per stall per report)</code></pre>
+
+    <h3 id="db-tables">12.2 Table Reference</h3>
+
+    <h4><code>users</code></h4>
+    <p>Stores every person who interacts with the system &mdash; attendees, booth staff, supervisors, admins, and
+      accountants. A single <code>role</code> column determines what they can do. Role enforcement is applied at the API
+      level using JWT claims derived from this field.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key. UUID used instead of serial integer to prevent enumeration attacks.</td>
+        </tr>
+        <tr>
+          <td><code>email</code></td>
+          <td><code>VARCHAR(255)</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td>Login identifier. Unique across all roles.</td>
+        </tr>
+        <tr>
+          <td><code>phone</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>UNIQUE, NULLABLE</td>
+          <td>Optional. Used for SMS notifications and walk-in attendee identification.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td><code>VARCHAR(255)</code></td>
+          <td>NOT NULL</td>
+          <td>Display name.</td>
+        </tr>
+        <tr>
+          <td><code>password_hash</code></td>
+          <td><code>TEXT</code></td>
+          <td>NOT NULL</td>
+          <td>Bcrypt hash. Raw password never stored.</td>
+        </tr>
+        <tr>
+          <td><code>role</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, CHECK</td>
+          <td>One of: <code>attendee</code>, <code>booth_staff</code>, <code>supervisor</code>, <code>admin</code>,
+            <code>accountant</code>. Encoded into JWT claims on login.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td><code>BOOLEAN</code></td>
+          <td>NOT NULL, default <code>true</code></td>
+          <td>Soft delete flag. Deactivated users cannot log in.</td>
+        </tr>
+        <tr>
+          <td><code>is_anonymous</code></td>
+          <td><code>BOOLEAN</code></td>
+          <td>NOT NULL, default <code>false</code></td>
+          <td><code>true</code> for walk-in attendees registered without an email. Can be upgraded to a full account via
+            the Companion App.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Account creation time.</td>
+        </tr>
+        <tr>
+          <td><code>last_login_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>Updated on every successful login. Used to detect dormant accounts.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Indexes:</strong></p>
+    <ul>
+      <li><code>idx_users_email</code> on <code>(email)</code> &mdash; fast login lookup</li>
+      <li><code>idx_users_role</code> on <code>(role)</code> &mdash; used to list all staff for an event</li>
+    </ul>
+    <p><strong>Notes:</strong> Walk-in attendees who pay cash at the gate get an <code>is_anonymous = true</code>
+      account created automatically by the POS App. If they later download the Companion App and tap their card, the
+      system links their anonymous profile to their real email. Booth staff accounts are created by the admin before the
+      event and assigned to stalls via the <code>stall_staff</code> table.</p>
+
+    <h4><code>refresh_tokens</code></h4>
+    <p>Stores active refresh tokens for JWT authentication. When an access token expires, the client sends its refresh
+      token to get a new pair. The old refresh token is invalidated immediately (rotation pattern), preventing token
+      reuse attacks.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>user_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The user this token belongs to.</td>
+        </tr>
+        <tr>
+          <td><code>token_hash</code></td>
+          <td><code>TEXT</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td>SHA-256 hash of the raw token. Raw token only exists in the HTTP response and the client's secure store.
+          </td>
+        </tr>
+        <tr>
+          <td><code>expires_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL</td>
+          <td>Token expiry. Celery Beat purges expired rows nightly.</td>
+        </tr>
+        <tr>
+          <td><code>is_revoked</code></td>
+          <td><code>BOOLEAN</code></td>
+          <td>NOT NULL, default <code>false</code></td>
+          <td>Set to <code>true</code> on use (rotation) or on explicit logout.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Issuance time.</td>
+        </tr>
+        <tr>
+          <td><code>device_info</code></td>
+          <td><code>TEXT</code></td>
+          <td>NULLABLE</td>
+          <td>Optional. Stores device identifier for the token (e.g. <code>Android 14, Pixel 7</code>). Useful for the
+            device binding feature in Phase 2.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4><code>events</code></h4>
+    <p>Represents a single festival or event. All stalls, cards, transactions, and settlement reports are scoped to an
+      event. This is the top-level entity in the schema.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td><code>VARCHAR(255)</code></td>
+          <td>NOT NULL</td>
+          <td>Human-readable name, e.g. <code>Sunburn Festival 2026</code>.</td>
+        </tr>
+        <tr>
+          <td><code>slug</code></td>
+          <td><code>VARCHAR(100)</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td>URL-safe identifier, e.g. <code>sunburn-2026</code>. Used in API paths.</td>
+        </tr>
+        <tr>
+          <td><code>venue</code></td>
+          <td><code>VARCHAR(255)</code></td>
+          <td>NOT NULL</td>
+          <td>Venue name and city, e.g. <code>Vagator Beach, Goa</code>.</td>
+        </tr>
+        <tr>
+          <td><code>starts_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL</td>
+          <td>Event start time.</td>
+        </tr>
+        <tr>
+          <td><code>ends_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL</td>
+          <td>Event end time. Celery Beat uses this to trigger auto-settlement.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>draft</code></td>
+          <td>One of: <code>draft</code>, <code>active</code>, <code>ended</code>, <code>settled</code>. Controls what
+            operations are permitted.</td>
+        </tr>
+        <tr>
+          <td><code>max_topup_per_card</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL, default <code>500000</code></td>
+          <td>Maximum lifetime top-up allowed per card for this event, in paise. Default ₹5,000.</td>
+        </tr>
+        <tr>
+          <td><code>refund_window_minutes</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL, default <code>30</code></td>
+          <td>Refund requests older than this many minutes are automatically rejected.</td>
+        </tr>
+        <tr>
+          <td><code>velocity_alert_multiplier</code></td>
+          <td><code>NUMERIC(4,2)</code></td>
+          <td>NOT NULL, default <code>3.0</code></td>
+          <td>Offline batch average transaction value above this multiple of online baseline triggers a velocity alert.
+          </td>
+        </tr>
+        <tr>
+          <td><code>organizer_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The admin user who created and owns this event.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Creation time.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4><code>stalls</code></h4>
+    <p>Represents a vendor stall operating at an event. Each stall has at least one staff member assigned to it.
+      Revenue, refunds, and payouts are calculated per stall at settlement.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>The event this stall operates at.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td><code>VARCHAR(255)</code></td>
+          <td>NOT NULL</td>
+          <td>Stall name, e.g. <code>Biryani Bros</code>.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL</td>
+          <td>Short location code, e.g. <code>B04</code>. Printed on the stall's physical sign.</td>
+        </tr>
+        <tr>
+          <td><code>category</code></td>
+          <td><code>VARCHAR(50)</code></td>
+          <td>NOT NULL</td>
+          <td>One of: <code>food</code>, <code>beverages</code>, <code>merch</code>, <code>other</code>. Used for
+            spending insights and settlement grouping.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td><code>BOOLEAN</code></td>
+          <td>NOT NULL, default <code>true</code></td>
+          <td>Soft delete. Deactivated stalls stop appearing in the admin dashboard.</td>
+        </tr>
+        <tr>
+          <td><code>gross_revenue_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL, default <code>0</code></td>
+          <td>Running total of all completed transactions for this stall, in paise. Updated by Celery on each sync
+            batch. Denormalized for fast dashboard queries.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Creation time.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Indexes:</strong></p>
+    <ul>
+      <li><code>idx_stalls_event_id</code> on <code>(event_id)</code> &mdash; fast stall listing per event</li>
+      <li><code>idx_stalls_event_category</code> on <code>(event_id, category)</code> &mdash; category breakdown queries
+      </li>
+    </ul>
+    <p><strong>Notes:</strong> <code>gross_revenue_paise</code> is a denormalized cache column. It is always
+      re-computable from <code>SUM(transactions.amount_paise) WHERE stall_id = X AND status = 'completed'</code>. It
+      exists to avoid expensive aggregation queries on the hot dashboard path.</p>
+
+    <h4><code>stall_staff</code></h4>
+    <p>Join table assigning users with the <code>booth_staff</code> role to specific stalls. A staff member can work at
+      multiple stalls (though unusual in practice), and a stall can have multiple staff members for shift coverage.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>stall_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>stalls.id</code>, NOT NULL</td>
+          <td>The stall this assignment is for.</td>
+        </tr>
+        <tr>
+          <td><code>user_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The staff member being assigned. Must have <code>role = 'booth_staff'</code>.</td>
+        </tr>
+        <tr>
+          <td><code>assigned_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>When the admin created this assignment.</td>
+        </tr>
+        <tr>
+          <td><code>assigned_by</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The admin user who made the assignment.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Constraints:</strong></p>
+    <ul>
+      <li><code>UNIQUE (stall_id, user_id)</code> &mdash; prevents duplicate assignments</li>
+    </ul>
+    <p><strong>Notes:</strong> The <code>stall_id</code> assigned to a staff member is encoded in their JWT at login
+      time. The POS App reads this from the token to know which stall to attribute transactions to. This means if a
+      staff member moves stalls mid-event, they must log out and log back in to get a new token.</p>
+
+    <h4><code>cards</code></h4>
+    <p>Represents a physical MIFARE NFC card issued to an attendee. The <code>card_uid</code> is the permanent,
+      unalterable hardware identifier read from the chip. The <code>server_balance_paise</code> is the backend's record
+      of what should be on the card &mdash; it is updated on every confirmed transaction and top-up.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>card_uid</code></td>
+          <td><code>VARCHAR(50)</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td>The hardware UID of the NFC card, e.g. <code>A8:F2:3D:91:C6:B4</code>. Set once, never changed.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>The event this card was issued for. Cards are event-scoped.</td>
+        </tr>
+        <tr>
+          <td><code>user_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
+          <td>The attendee this card is linked to. <code>NULL</code> for unprovisioned cards that have been written but
+            not yet linked to a Companion App account.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>active</code></td>
+          <td>One of: <code>active</code>, <code>blocked</code>, <code>replaced</code>, <code>expired</code>.</td>
+        </tr>
+        <tr>
+          <td><code>server_balance_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL, default <code>0</code></td>
+          <td>Backend's record of the card balance, in paise. Must stay in sync with the on-card balance through the
+            reconciliation system.</td>
+        </tr>
+        <tr>
+          <td><code>txn_counter</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL, default <code>0</code></td>
+          <td>The last known on-card transaction counter value. Updated every time a transaction for this card is
+            reconciled. Used to detect missed syncs.</td>
+        </tr>
+        <tr>
+          <td><code>card_type</code></td>
+          <td><code>VARCHAR(30)</code></td>
+          <td>NOT NULL, default <code>mifare_ultralight</code></td>
+          <td>One of: <code>mifare_ultralight</code>, <code>mifare_classic_1k</code>. Determines which read/write
+            protocol the POS App uses.</td>
+        </tr>
+        <tr>
+          <td><code>tier</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>general</code></td>
+          <td>One of: <code>general</code>, <code>gold</code>, <code>platinum</code>, <code>vip</code>. Stored
+            server-side since it cannot fit on Ultralight cards. Used by online POS terminals to apply tier-based
+            discounts.</td>
+        </tr>
+        <tr>
+          <td><code>issued_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>When the card was provisioned at the gate.</td>
+        </tr>
+        <tr>
+          <td><code>linked_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When the attendee linked the card to their Companion App account. <code>NULL</code> for walk-in attendees
+            who never downloaded the app.</td>
+        </tr>
+        <tr>
+          <td><code>blocked_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>Timestamp of the block action. Populated when <code>status</code> becomes <code>blocked</code>.</td>
+        </tr>
+        <tr>
+          <td><code>blocked_by</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
+          <td>The admin or supervisor who blocked the card.</td>
+        </tr>
+        <tr>
+          <td><code>replaced_by_card_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>cards.id</code>, NULLABLE</td>
+          <td>If this card was replaced (lost card flow), this points to the new card. Preserves the audit chain.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Indexes:</strong></p>
+    <ul>
+      <li><code>idx_cards_card_uid</code> on <code>(card_uid)</code> &mdash; the most common lookup (every POS read and
+        attendee balance check)</li>
+      <li><code>idx_cards_user_id</code> on <code>(user_id)</code> &mdash; attendee's card history</li>
+      <li><code>idx_cards_event_id_status</code> on <code>(event_id, status)</code> &mdash; admin card management view
+      </li>
+    </ul>
+    <p><strong>Notes:</strong> A user can have multiple cards in history (e.g. after a lost card replacement), but only
+      one should be <code>status = 'active'</code> per event at any time. This is enforced at the application layer, not
+      with a unique constraint, to allow for the brief window during a card replacement where both old and new cards may
+      be technically active. <code>server_balance_paise</code> is the reconciled balance after all synced transactions
+      are applied. During an offline period, the on-card balance and the server balance will diverge. The reconciliation
+      Celery task brings them back in sync after the POS App reconnects.</p>
+
+    <h4><code>transactions</code></h4>
+    <p>The core financial ledger. Every debit (payment at a stall), credit (top-up write-back), and refund credit is
+      recorded here as an immutable row. <strong>Rows in this table are never updated or deleted.</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key (server-generated).</td>
+        </tr>
+        <tr>
+          <td><code>txn_id</code></td>
+          <td><code>UUID</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td><strong>The idempotency key.</strong> Generated by the POS App at the moment of writing to SQLite on the
+            device, before any network communication. Used to deduplicate sync batches.</td>
+        </tr>
+        <tr>
+          <td><code>card_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>cards.id</code>, NOT NULL</td>
+          <td>The card this transaction is against.</td>
+        </tr>
+        <tr>
+          <td><code>stall_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>stalls.id</code>, NULLABLE</td>
+          <td>The stall that charged the card. <code>NULL</code> for top-up credits and system adjustments.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>Denormalized for fast event-scoped queries without joins.</td>
+        </tr>
+        <tr>
+          <td><code>type</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL</td>
+          <td>One of: <code>payment</code>, <code>topup_credit</code>, <code>refund_credit</code>,
+            <code>adjustment</code>.</td>
+        </tr>
+        <tr>
+          <td><code>amount_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Transaction amount in paise. Always positive. The <code>type</code> field determines whether this is a
+            debit or credit.</td>
+        </tr>
+        <tr>
+          <td><code>balance_before_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Server balance on the card immediately before this transaction. Used to reconstruct balance history and
+            for dispute resolution.</td>
+        </tr>
+        <tr>
+          <td><code>balance_after_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Server balance on the card immediately after this transaction.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>pending</code></td>
+          <td>One of: <code>pending</code> (in SQLite queue, not yet synced), <code>synced</code> (received by server,
+            awaiting reconciliation), <code>completed</code> (reconciled and applied to the ledger), <code>failed</code>
+            (reconciliation error).</td>
+        </tr>
+        <tr>
+          <td><code>txn_counter_on_card</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>The value of the card's <code>txn_counter</code> at the time of this transaction. Used by the
+            reconciliation engine to order transactions correctly.</td>
+        </tr>
+        <tr>
+          <td><code>nonce</code></td>
+          <td><code>VARCHAR(50)</code></td>
+          <td>NOT NULL</td>
+          <td>The <code>last_txn_nonce</code> value written to the card for this transaction. Stored for audit purposes.
+          </td>
+        </tr>
+        <tr>
+          <td><code>device_id</code></td>
+          <td><code>VARCHAR(100)</code></td>
+          <td>NULLABLE</td>
+          <td>The Android or iOS device ID of the POS terminal that processed this transaction. Useful for fraud
+            investigation.</td>
+        </tr>
+        <tr>
+          <td><code>synced_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When the POS App sent this transaction to the server. <code>NULL</code> while still in the device's SQLite
+            queue.</td>
+        </tr>
+        <tr>
+          <td><code>reconciled_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When the Celery reconciliation task applied this transaction to the ledger.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>When the transaction was created on the device (moment of NFC write).</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Indexes:</strong></p>
+    <ul>
+      <li><code>idx_txn_txn_id</code> on <code>(txn_id)</code> &mdash; idempotency check on every sync batch (most
+        critical index)</li>
+      <li><code>idx_txn_card_id</code> on <code>(card_id)</code> &mdash; attendee transaction history</li>
+      <li><code>idx_txn_stall_id_event_id</code> on <code>(stall_id, event_id)</code> &mdash; stall audit view</li>
+      <li><code>idx_txn_event_id_status</code> on <code>(event_id, status)</code> &mdash; dashboard aggregations</li>
+      <li><code>idx_txn_created_at</code> on <code>(created_at DESC)</code> &mdash; chronological listing</li>
+    </ul>
+    <p><strong>Notes:</strong> The combination of <code>txn_counter_on_card</code> and <code>card_id</code> is what the
+      reconciliation engine uses to order payments. If three transactions arrive with counters <code>5</code>,
+      <code>7</code>, <code>6</code>, the engine re-sorts them to <code>5</code>, <code>6</code>, <code>7</code> and
+      applies them in that order. If counter <code>6</code> never arrives (a missing sync), the engine puts transactions
+      <code>7+</code> in a <code>pending_reconciliation</code> state until <code>6</code> arrives or an admin manually
+      resolves the gap. <code>balance_before_paise</code> and <code>balance_after_paise</code> are denormalized at write
+      time and never recomputed. They create a verifiable chain: <code>balance_after</code> of transaction N should
+      equal <code>balance_before</code> of transaction N+1 for the same card.</p>
+
+    <h4><code>topups</code></h4>
+    <p>Tracks every Razorpay payment initiated by an attendee through the Companion App. This table is separate from
+      <code>transactions</code> because a top-up involves two steps: the Razorpay payment (online) and the physical card
+      balance write (requires a Top-Up terminal tap). The <code>transactions</code> row is created only after the card
+      write is confirmed.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>user_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The attendee who initiated the top-up.</td>
+        </tr>
+        <tr>
+          <td><code>card_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>cards.id</code>, NOT NULL</td>
+          <td>The card to be credited.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>The event context.</td>
+        </tr>
+        <tr>
+          <td><code>amount_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Amount paid, in paise.</td>
+        </tr>
+        <tr>
+          <td><code>razorpay_order_id</code></td>
+          <td><code>VARCHAR(100)</code></td>
+          <td>UNIQUE, NOT NULL</td>
+          <td>The order ID returned by <code>POST /topups/initiate</code>. Sent to the Razorpay SDK on the client.</td>
+        </tr>
+        <tr>
+          <td><code>razorpay_payment_id</code></td>
+          <td><code>VARCHAR(100)</code></td>
+          <td>UNIQUE, NULLABLE</td>
+          <td>Populated by the Razorpay webhook after successful payment.</td>
+        </tr>
+        <tr>
+          <td><code>razorpay_signature</code></td>
+          <td><code>TEXT</code></td>
+          <td>NULLABLE</td>
+          <td>HMAC signature from Razorpay. Verified server-side before crediting the card. Stored for audit.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>initiated</code></td>
+          <td>One of: <code>initiated</code>, <code>paid</code>, <code>write_pending</code>,
+            <code>write_completed</code>, <code>failed</code>, <code>expired</code>.</td>
+        </tr>
+        <tr>
+          <td><code>write_transaction_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>transactions.id</code>, NULLABLE</td>
+          <td>The <code>transactions</code> row created when the card write is confirmed at a Top-Up terminal.</td>
+        </tr>
+        <tr>
+          <td><code>expires_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL</td>
+          <td>Razorpay order expiry (typically 15 minutes). Celery Beat marks unpaid orders as <code>expired</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>When the attendee tapped "Pay".</td>
+        </tr>
+        <tr>
+          <td><code>paid_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When Razorpay confirmed payment (webhook receipt time).</td>
+        </tr>
+        <tr>
+          <td><code>write_completed_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When the card write was confirmed by the Top-Up terminal.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Status flow:</strong></p>
+    <pre><code>initiated &rarr; paid (webhook) &rarr; write_pending (Celery task queued) &rarr; write_completed (terminal taps card) &rarr; done
+                           &searr; failed (webhook reports failure)
+initiated &rarr; expired (Celery Beat, after expires_at)</code></pre>
+
+    <h4><code>refunds</code></h4>
+    <p>Tracks refund requests raised by attendees (via Companion App) or flagged by booth staff (via POS App). A refund
+      does not modify any existing <code>transactions</code> row. On approval, a new <code>transactions</code> row of
+      type <code>refund_credit</code> is created and the card balance is credited.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>transaction_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>transactions.id</code>, NOT NULL</td>
+          <td>The original payment transaction being disputed. One refund request per transaction.</td>
+        </tr>
+        <tr>
+          <td><code>card_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>cards.id</code>, NOT NULL</td>
+          <td>Denormalized for fast card-level refund history.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>Denormalized for event-scoped refund queue.</td>
+        </tr>
+        <tr>
+          <td><code>raised_by</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The user who raised the request &mdash; either the attendee or the booth staff member.</td>
+        </tr>
+        <tr>
+          <td><code>raised_by_role</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL</td>
+          <td>One of: <code>attendee</code>, <code>booth_staff</code>. Determines which app surface raised the request.
+          </td>
+        </tr>
+        <tr>
+          <td><code>reason</code></td>
+          <td><code>TEXT</code></td>
+          <td>NOT NULL</td>
+          <td>The reason provided by the attendee or staff. Shown to the supervisor in the approval queue.</td>
+        </tr>
+        <tr>
+          <td><code>amount_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>The refund amount requested. May be less than the original transaction amount (partial refunds).</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>pending</code></td>
+          <td>One of: <code>pending</code>, <code>approved</code>, <code>rejected</code>, <code>write_completed</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><code>reviewed_by</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
+          <td>The supervisor who approved or rejected this request.</td>
+        </tr>
+        <tr>
+          <td><code>review_note</code></td>
+          <td><code>TEXT</code></td>
+          <td>NULLABLE</td>
+          <td>Optional note from the supervisor explaining the decision.</td>
+        </tr>
+        <tr>
+          <td><code>reviewed_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When the supervisor acted on the request.</td>
+        </tr>
+        <tr>
+          <td><code>credit_transaction_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>transactions.id</code>, NULLABLE</td>
+          <td>The <code>transactions</code> row of type <code>refund_credit</code> created when the supervisor approves.
+          </td>
+        </tr>
+        <tr>
+          <td><code>write_completed_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When the refund balance was physically written back to the card at a terminal.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>When the request was raised.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Constraints:</strong></p>
+    <ul>
+      <li><code>UNIQUE (transaction_id)</code> &mdash; one refund request per original transaction</li>
+    </ul>
+
+    <h4><code>velocity_alerts</code></h4>
+    <p>Records automatically generated alerts when a stall's offline sync batch shows suspicious transaction patterns.
+      These are surfaced in the Admin Panel for manual review. Flagged stalls have their payouts frozen until an admin
+      explicitly approves or rejects.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>stall_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>stalls.id</code>, NOT NULL</td>
+          <td>The flagged stall.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>The event.</td>
+        </tr>
+        <tr>
+          <td><code>trigger_type</code></td>
+          <td><code>VARCHAR(50)</code></td>
+          <td>NOT NULL</td>
+          <td>One of: <code>high_avg_txn_value</code>, <code>rapid_sequence</code>, <code>card_not_seen_online</code>.
+            Describes what pattern triggered the alert.</td>
+        </tr>
+        <tr>
+          <td><code>online_avg_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>The stall's average transaction value during online periods, in paise. The baseline.</td>
+        </tr>
+        <tr>
+          <td><code>offline_avg_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>The stall's average transaction value in the suspicious offline batch, in paise.</td>
+        </tr>
+        <tr>
+          <td><code>multiplier</code></td>
+          <td><code>NUMERIC(6,2)</code></td>
+          <td>NOT NULL</td>
+          <td><code>offline_avg / online_avg</code>. Alerts fire when this exceeds
+            <code>events.velocity_alert_multiplier</code>.</td>
+        </tr>
+        <tr>
+          <td><code>transaction_count</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Number of transactions in the suspicious batch.</td>
+        </tr>
+        <tr>
+          <td><code>payout_frozen</code></td>
+          <td><code>BOOLEAN</code></td>
+          <td>NOT NULL, default <code>true</code></td>
+          <td>Whether this alert has frozen the stall's settlement payout.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>open</code></td>
+          <td>One of: <code>open</code>, <code>dismissed</code>, <code>escalated</code>, <code>resolved</code>.</td>
+        </tr>
+        <tr>
+          <td><code>resolved_by</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
+          <td>The admin who reviewed the alert.</td>
+        </tr>
+        <tr>
+          <td><code>resolution_note</code></td>
+          <td><code>TEXT</code></td>
+          <td>NULLABLE</td>
+          <td>Admin note explaining the resolution.</td>
+        </tr>
+        <tr>
+          <td><code>resolved_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>Resolution timestamp.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>When the Celery sync task generated the alert.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4><code>settlement_reports</code></h4>
+    <p>One report per event per settlement run. Captures the final financial summary after all transactions are
+      reconciled and all refunds are applied. Generated by a Celery task triggered by the admin.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, UNIQUE, NOT NULL</td>
+          <td>One settlement per event.</td>
+        </tr>
+        <tr>
+          <td><code>generated_by</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The admin who triggered the settlement.</td>
+        </tr>
+        <tr>
+          <td><code>total_topups_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Sum of all <code>topups</code> with <code>status = 'write_completed'</code>, in paise.</td>
+        </tr>
+        <tr>
+          <td><code>total_spent_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Sum of all <code>transactions</code> with <code>type = 'payment'</code> and
+            <code>status = 'completed'</code>, in paise.</td>
+        </tr>
+        <tr>
+          <td><code>total_refunds_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Sum of all approved refund credits, in paise.</td>
+        </tr>
+        <tr>
+          <td><code>unspent_float_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td><code>total_topups - total_spent + total_refunds</code>. The balance remaining on all cards.</td>
+        </tr>
+        <tr>
+          <td><code>net_payable_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Total amount to be distributed to stalls: <code>total_spent - total_refunds</code>.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>generated</code></td>
+          <td>One of: <code>generated</code>, <code>payouts_in_progress</code>, <code>completed</code>.</td>
+        </tr>
+        <tr>
+          <td><code>pdf_s3_key</code></td>
+          <td><code>TEXT</code></td>
+          <td>NULLABLE</td>
+          <td>S3 object key for the generated PDF report.</td>
+        </tr>
+        <tr>
+          <td><code>excel_s3_key</code></td>
+          <td><code>TEXT</code></td>
+          <td>NULLABLE</td>
+          <td>S3 object key for the generated Excel report.</td>
+        </tr>
+        <tr>
+          <td><code>generated_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>When the report was generated.</td>
+        </tr>
+        <tr>
+          <td><code>completed_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When all stall payouts were marked complete.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4><code>stall_payouts</code></h4>
+    <p>One row per stall per settlement report. Records the net amount owed to each vendor after deducting approved
+      refunds. Updated as the admin marks individual payouts as completed.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>settlement_report_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>settlement_reports.id</code>, NOT NULL</td>
+          <td>The parent report.</td>
+        </tr>
+        <tr>
+          <td><code>stall_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>stalls.id</code>, NOT NULL</td>
+          <td>The stall being paid out.</td>
+        </tr>
+        <tr>
+          <td><code>gross_revenue_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td>Total payments processed by this stall (from <code>transactions</code>).</td>
+        </tr>
+        <tr>
+          <td><code>refunds_deducted_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL, default <code>0</code></td>
+          <td>Total approved refunds attributable to this stall.</td>
+        </tr>
+        <tr>
+          <td><code>net_payout_paise</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL</td>
+          <td><code>gross_revenue - refunds_deducted</code>. The amount transferred to the vendor.</td>
+        </tr>
+        <tr>
+          <td><code>payout_status</code></td>
+          <td><code>VARCHAR(20)</code></td>
+          <td>NOT NULL, default <code>pending</code></td>
+          <td>One of: <code>pending</code>, <code>approved</code>, <code>on_hold</code> (velocity alert freeze),
+            <code>completed</code>.</td>
+        </tr>
+        <tr>
+          <td><code>on_hold_reason</code></td>
+          <td><code>TEXT</code></td>
+          <td>NULLABLE</td>
+          <td>Populated when <code>payout_status = 'on_hold'</code>. References the velocity alert.</td>
+        </tr>
+        <tr>
+          <td><code>approved_by</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NULLABLE</td>
+          <td>Admin who approved the payout.</td>
+        </tr>
+        <tr>
+          <td><code>approved_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>Approval timestamp.</td>
+        </tr>
+        <tr>
+          <td><code>completed_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NULLABLE</td>
+          <td>When payment transfer was confirmed.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Constraints:</strong></p>
+    <ul>
+      <li><code>UNIQUE (settlement_report_id, stall_id)</code> &mdash; one payout row per stall per settlement</li>
+    </ul>
+
+    <h4><code>ai_chat_sessions</code></h4>
+    <p>Groups AI chatbot messages into sessions for context management. Each session has a TTL maintained in Redis for
+      active conversation history. The full conversation is persisted here in PostgreSQL for audit and support purposes.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key. Also used as the Redis key for the active session context.</td>
+        </tr>
+        <tr>
+          <td><code>user_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The attendee this session belongs to.</td>
+        </tr>
+        <tr>
+          <td><code>event_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>events.id</code>, NOT NULL</td>
+          <td>The event context injected into the Claude system prompt.</td>
+        </tr>
+        <tr>
+          <td><code>started_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Session start time.</td>
+        </tr>
+        <tr>
+          <td><code>last_message_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Updated on every message. Used to expire idle sessions.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td><code>BOOLEAN</code></td>
+          <td>NOT NULL, default <code>true</code></td>
+          <td>Set to <code>false</code> when the session expires or the user explicitly closes the chat.</td>
+        </tr>
+        <tr>
+          <td><code>message_count</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NOT NULL, default <code>0</code></td>
+          <td>Running count of messages in the session.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4><code>ai_chat_messages</code></h4>
+    <p>Individual messages in an AI chat session. Stores both the attendee's messages and Claude's responses for audit,
+      support, and future fine-tuning purposes.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>session_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>ai_chat_sessions.id</code>, NOT NULL</td>
+          <td>The parent session.</td>
+        </tr>
+        <tr>
+          <td><code>role</code></td>
+          <td><code>VARCHAR(10)</code></td>
+          <td>NOT NULL</td>
+          <td>One of: <code>user</code> (attendee message), <code>assistant</code> (Claude response). Maps directly to
+            the Anthropic API message format.</td>
+        </tr>
+        <tr>
+          <td><code>content</code></td>
+          <td><code>TEXT</code></td>
+          <td>NOT NULL</td>
+          <td>The message text.</td>
+        </tr>
+        <tr>
+          <td><code>context_snapshot</code></td>
+          <td><code>JSONB</code></td>
+          <td>NULLABLE</td>
+          <td>The event context injected into the system prompt for this message (balance, recent transactions). Stored
+            for debugging prompt quality. Only on <code>role = 'user'</code> rows.</td>
+        </tr>
+        <tr>
+          <td><code>created_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Message timestamp.</td>
+        </tr>
+        <tr>
+          <td><code>latency_ms</code></td>
+          <td><code>INTEGER</code></td>
+          <td>NULLABLE</td>
+          <td>Claude API response latency in milliseconds. Populated on <code>role = 'assistant'</code> rows. Useful for
+            monitoring.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Indexes:</strong></p>
+    <ul>
+      <li><code>idx_chat_messages_session_id</code> on <code>(session_id, created_at)</code> &mdash; fast session
+        history retrieval</li>
+    </ul>
+
+    <h4><code>device_registrations</code></h4>
+    <p><em>(Phase 2)</em> Stores registered POS devices. Once a staff member logs in from a device for the first time,
+      the device is registered. Subsequent logins from unregistered devices are rejected. This is the device binding
+      feature that prevents stolen credentials from being used on a different phone.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Constraints</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td><code>UUID</code></td>
+          <td>PK, default <code>gen_random_uuid()</code></td>
+          <td>Primary key.</td>
+        </tr>
+        <tr>
+          <td><code>user_id</code></td>
+          <td><code>UUID</code></td>
+          <td>FK &rarr; <code>users.id</code>, NOT NULL</td>
+          <td>The <code>booth_staff</code> user this device is registered to.</td>
+        </tr>
+        <tr>
+          <td><code>device_identifier</code></td>
+          <td><code>VARCHAR(255)</code></td>
+          <td>NOT NULL</td>
+          <td>Android ID or iOS device UUID.</td>
+        </tr>
+        <tr>
+          <td><code>device_name</code></td>
+          <td><code>VARCHAR(255)</code></td>
+          <td>NULLABLE</td>
+          <td>Human-readable device name, e.g. <code>Samsung Galaxy A54</code>.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td><code>BOOLEAN</code></td>
+          <td>NOT NULL, default <code>true</code></td>
+          <td>Set to <code>false</code> to deregister a device (e.g. if a staff member loses their phone).</td>
+        </tr>
+        <tr>
+          <td><code>registered_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>First login timestamp.</td>
+        </tr>
+        <tr>
+          <td><code>last_seen_at</code></td>
+          <td><code>TIMESTAMPTZ</code></td>
+          <td>NOT NULL, default <code>now()</code></td>
+          <td>Updated on every successful authenticated request from this device.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Constraints:</strong></p>
+    <ul>
+      <li><code>UNIQUE (user_id, device_identifier)</code> &mdash; one registration entry per user per device</li>
+    </ul>
+
+    <h3 id="db-relations">12.3 Key Relationships Explained</h3>
+
+    <h4>Card &harr; User (Many-to-One, with history)</h4>
+    <p>A <code>user</code> can have many <code>cards</code> over time (one card per event, or a replacement card after
+      loss). But at any given point, only one card should be <code>status = 'active'</code> per event per user. The
+      <code>user_id</code> on <code>cards</code> may be <code>NULL</code> for unprovisioned walk-in cards that have been
+      written but not yet claimed through the Companion App.</p>
+
+    <h4>Transaction &harr; Card (Many-to-One, immutable)</h4>
+    <p>Every <code>transaction</code> is permanently associated with a <code>card</code> at creation time. Transactions
+      cannot be reassigned to a different card. The <code>balance_before_paise</code> and
+      <code>balance_after_paise</code> columns form a verifiable chain of custody for every rupee on the card.</p>
+
+    <h4>Transaction idempotency (txn_id)</h4>
+    <p>The <code>txn_id</code> column on <code>transactions</code> is generated by the POS App at the exact moment the
+      NFC write succeeds &mdash; before any network call. It is the idempotency key used by
+      <code>POST /sync/batch</code>. The database enforces uniqueness on this column, so even if the same transaction is
+      submitted in 10 different sync batches, only one row is ever written to the ledger.</p>
+
+    <h4>Topup &harr; Transaction (One-to-One, deferred)</h4>
+    <p>A <code>topup</code> row is created when the Razorpay payment is initiated. The linked <code>transaction</code>
+      row (<code>write_transaction_id</code>) is only created later, when the attendee physically taps their card at a
+      Top-Up terminal and the Celery task writes the balance. This two-step structure means a paid-but-not-yet-written
+      top-up has a <code>topup</code> row with <code>status = 'write_pending'</code> but no corresponding
+      <code>transaction</code> row yet.</p>
+
+    <h4>Refund &harr; Transaction (One-to-One request, One-to-One credit)</h4>
+    <p>A refund request (<code>refunds</code> table) references the original <code>transaction</code> being disputed. On
+      approval, a second <code>transactions</code> row of <code>type = 'refund_credit'</code> is created and linked back
+      via <code>refunds.credit_transaction_id</code>. The original transaction is never modified.</p>
+
+    <h3 id="db-alembic">12.4 Alembic Migration Notes</h3>
+    <p>Every schema change ships as an Alembic migration script in <code>backend/alembic/versions/</code>. Migrations
+      run automatically as part of the CI/CD pipeline <strong>before</strong> the new Docker container receives any
+      traffic.</p>
+    <p>Migration naming convention:</p>
+    <pre><code>{timestamp}_{short_description}.py
+# e.g.
+20260615_001_create_users_and_auth_tables.py
+20260620_002_add_cards_and_transactions.py
+20260625_003_add_velocity_alerts.py
+20260628_004_add_ai_chat_tables.py</code></pre>
+    <p>Key rules:</p>
+    <ul>
+      <li>Every migration must have both an <code>upgrade()</code> and a <code>downgrade()</code> function.</li>
+      <li>Never drop a column directly &mdash; add a new column, migrate data, deprecate old column in a subsequent
+        migration.</li>
+      <li>Index creation uses <code>CREATE INDEX CONCURRENTLY</code> in production migrations to avoid table locks.</li>
+      <li>All migrations are tested against the test database in the CI pipeline before any production deploy is
+        permitted.</li>
+    </ul>
 
     <hr>
     <p style="text-align: center; color: var(--text-muted); font-size: 13px; font-style: italic;">FizMaa Cashless —
